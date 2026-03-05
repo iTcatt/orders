@@ -1,0 +1,18 @@
+[env]
+APP_ENV = "prod"
+
+[tools]
+gofumpt = "latest"
+golangci-lint = "v2.10.1"
+
+[tasks.fmt]
+run = "gofumpt -w -l ."
+
+[tasks.lint]
+run = "golangci-lint run"
+
+[tasks.test]
+run = "go test -v ./..."
+
+[tasks.check]
+depends = ["fmt", "lint"]
