@@ -1,7 +1,11 @@
 [env]
+_.file = '.env'
 APP_ENV = "prod"
+DB_USER = "postgres"
+DB_NAME = "master"
 
 [tools]
+"go:github.com/pressly/goose/v3/cmd/goose" = "latest"
 gofumpt = "latest"
 golangci-lint = "v2.10.1"
 
@@ -16,3 +20,9 @@ run = "go test -v ./..."
 
 [tasks.check]
 depends = ["fmt", "lint"]
+
+[tasks.migrate]
+run = "goose postgres $DB_URL -dir migrations/postgres/master up"
+
+[tasks.down]
+run = "goose postgres $DB_URL -dir migrations/postgres/master down"
