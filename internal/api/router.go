@@ -3,17 +3,20 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
-func NewRouter(productHandler productHandler) *http.ServeMux {
-	mux := http.NewServeMux()
+func NewRouter(productHandler productHandler) *chi.Mux {
+	router := chi.NewRouter()
+	router.Use(logMiddleware())
 
-	mux.HandleFunc("GET /product/{id}", productHandler.GetByID)
-	mux.HandleFunc("POST /product", productHandler.Create)
-	mux.HandleFunc("PATCH /product/{id}", productHandler.Update)
-	mux.HandleFunc("DELETE /product/{id}", productHandler.Delete)
+	router.Get("/product/{id}", productHandler.GetByID)
+	router.Post("/product", productHandler.Create)
+	router.Patch("/product/{id}", productHandler.Update)
+	router.Delete("/product/{id}", productHandler.Delete)
 
-	return mux
+	return router
 }
 
 func SendJSON(w http.ResponseWriter, data any, code int) {

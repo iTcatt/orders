@@ -8,18 +8,21 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/golang-cz/devslog"
+	"github.com/joho/godotenv"
+
 	"iTcatt/orders/internal/api"
 	apiProduct "iTcatt/orders/internal/api/product"
 	"iTcatt/orders/internal/infra/postgres"
 	"iTcatt/orders/internal/storage/products"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
+
+	setupLogger()
 
 	db, err := postgres.New(os.Getenv("DB_URL"))
 	if err != nil {
@@ -65,4 +68,28 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		panic(err)
 	}
+}
+
+func setupLogger() {
+	slogOpts := &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelDebug,
+	}
+
+	var logger *slog.Logger
+	if os.Getenv("env") == "prod" {
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, slogOpts))
+	} else {
+		opts := &devslog.Options{
+			HandlerOptions:    slogOpts,
+			MaxSlicePrintSize: 10,
+			SortKeys:          true,
+			NewLineAfterLog:   true,
+			StringerFormatter: true,
+		}
+
+		logger = slog.New(devslog.NewHandler(os.Stdout, opts))
+	}
+
+	slog.SetDefault(logger)
 }

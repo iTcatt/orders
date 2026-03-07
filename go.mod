@@ -4,6 +4,9 @@ go 1.26
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/httplog/v3 v3.3.0
+	github.com/golang-cz/devslog v0.0.15
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1

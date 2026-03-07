@@ -21,7 +21,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "product not found", http.StatusNotFound)
 			return
 		}
-		
+
 		http.Error(w, "failed to delete product", http.StatusInternalServerError)
 		return
 	}

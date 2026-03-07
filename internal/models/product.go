@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// Product – модель товара
 type Product struct {
 	ID          int32     `db:"id"`          // ID – идентификатор товара
 	Title       string    `db:"title"`       // Title – название товара

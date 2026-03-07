@@ -1,6 +1,6 @@
 [env]
 _.file = '.env'
-APP_ENV = "prod"
+APP_ENV = "dev"
 DB_USER = "postgres"
 DB_NAME = "master"
 
@@ -17,6 +17,9 @@ run = "golangci-lint run"
 
 [tasks.test]
 run = "go test -v ./..."
+
+[tasks.start]
+run = "go run cmd/service/main.go"
 
 [tasks.check]
 depends = ["fmt", "lint"]
