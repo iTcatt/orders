@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"iTcatt/orders/internal/models"
-	"iTcatt/orders/internal/storage"
+	"iTcatt/orders/internal/usecase"
 )
 
-type productStorage interface {
-	GetByID(ctx context.Context, id int32) (models.Product, error)
-	Create(ctx context.Context, p models.Product) error
-	Update(ctx context.Context, id int32, in storage.UpdateProductIn) error
-	Delete(ctx context.Context, id int32) error
+type productUsecase interface {
+	GetProductByID(ctx context.Context, id int32) (models.Product, error)
+	CreateProduct(ctx context.Context, in usecase.CreateProductIn) (int32, error)
+	UpdateProduct(ctx context.Context, id int32, in usecase.UpdateProductIn) error
+	DeleteProduct(ctx context.Context, id int32) error
 }

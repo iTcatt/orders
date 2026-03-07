@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"iTcatt/orders/pkg/sqlp"
+	"iTcatt/orders/internal/usecase/product"
 )
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
@@ -15,9 +15,9 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.storage.Delete(r.Context(), int32(id))
+	err = h.uc.DeleteProduct(r.Context(), int32(id))
 	if err != nil {
-		if errors.Is(err, sqlp.ErrNotFound) {
+		if errors.Is(err, product.ErrProductNotFound) {
 			http.Error(w, "product not found", http.StatusNotFound)
 			return
 		}

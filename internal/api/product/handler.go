@@ -1,9 +1,9 @@
 package product
 
 type Handler struct {
-	storage productStorage
+	uc productUsecase
 }
 
-func New(s productStorage) *Handler {
-	return &Handler{storage: s}
+func New(uc productUsecase) *Handler {
+	return &Handler{uc: uc}
 }

@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"iTcatt/orders/internal/storage"
-	"iTcatt/orders/pkg/sqlp"
+	"iTcatt/orders/internal/api/product/dto"
+	"iTcatt/orders/internal/usecase"
+	"iTcatt/orders/internal/usecase/product"
 )
 
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
@@ -18,8 +19,8 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.storage.Update(r.Context(), id, in); err != nil {
-		if errors.Is(err, sqlp.ErrNotFound) {
+	if err := h.uc.UpdateProduct(r.Context(), id, in); err != nil {
+		if errors.Is(err, product.ErrProductNotFound) {
 			http.Error(w, "product not found", http.StatusNotFound)
 			return
 		}
@@ -31,16 +32,20 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func extractInput(r *http.Request) (int32, storage.UpdateProductIn, error) {
+func extractInput(r *http.Request) (int32, usecase.UpdateProductIn, error) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		return 0, storage.UpdateProductIn{}, fmt.Errorf("invalid id: %w", err)
+		return 0, usecase.UpdateProductIn{}, fmt.Errorf("invalid id: %w", err)
 	}
 
-	var in storage.UpdateProductIn
+	var in dto.UpdateProductIn
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		return 0, storage.UpdateProductIn{}, fmt.Errorf("invalid input: %w", err)
+		return 0, usecase.UpdateProductIn{}, fmt.Errorf("invalid input: %w", err)
 	}
 
-	return int32(id), in, nil
+	return int32(id), usecase.UpdateProductIn{
+		Title:       in.Title,
+		Description: in.Description,
+		Price:       in.Price,
+	}, nil
 }

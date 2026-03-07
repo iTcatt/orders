@@ -9,7 +9,7 @@ import (
 	"iTcatt/orders/internal/api"
 	"iTcatt/orders/internal/api/product/dto"
 	"iTcatt/orders/internal/models"
-	"iTcatt/orders/pkg/sqlp"
+	uc "iTcatt/orders/internal/usecase/product"
 )
 
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -19,9 +19,9 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := h.storage.GetByID(r.Context(), int32(id))
+	product, err := h.uc.GetProductByID(r.Context(), int32(id))
 	if err != nil {
-		if errors.Is(err, sqlp.ErrNotFound) {
+		if errors.Is(err, uc.ErrProductNotFound) {
 			http.Error(w, "product not found", http.StatusNotFound)
 			return
 		}

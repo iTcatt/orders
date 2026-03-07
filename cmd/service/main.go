@@ -15,6 +15,7 @@ import (
 	apiProduct "iTcatt/orders/internal/api/product"
 	"iTcatt/orders/internal/infra/postgres"
 	"iTcatt/orders/internal/storage/products"
+	productUsecase "iTcatt/orders/internal/usecase/product"
 )
 
 func main() {
@@ -36,8 +37,8 @@ func main() {
 	}()
 
 	productDB := products.New(db)
-
-	productHandler := apiProduct.New(productDB)
+	productUC := productUsecase.New(productDB, time.Now)
+	productHandler := apiProduct.New(productUC)
 
 	router := api.NewRouter(productHandler)
 
