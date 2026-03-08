@@ -44,7 +44,7 @@ func (u *usecase) GetProductByID(ctx context.Context, id int32) (models.Product,
 	product, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sqlp.ErrNotFound) {
-			return models.Product{}, ErrProductNotFound
+			return models.Product{}, uc.ErrProductNotFound
 		}
 
 		return models.Product{}, fmt.Errorf("get product by id: %w", err)
@@ -77,7 +77,7 @@ func (u *usecase) UpdateProduct(ctx context.Context, id int32, in uc.UpdateProdu
 	})
 	if err != nil {
 		if errors.Is(err, sqlp.ErrNotFound) {
-			return ErrProductNotFound
+			return uc.ErrProductNotFound
 		}
 
 		return fmt.Errorf("update product: %w", err)
@@ -90,7 +90,7 @@ func (u *usecase) DeleteProduct(ctx context.Context, id int32) error {
 	err := u.repo.Delete(ctx, id)
 	if err != nil {
 		if errors.Is(err, sqlp.ErrNotFound) {
-			return ErrProductNotFound
+			return uc.ErrProductNotFound
 		}
 
 		return fmt.Errorf("delete product: %w", err)

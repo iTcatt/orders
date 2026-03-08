@@ -11,7 +11,6 @@ import (
 	"iTcatt/orders/internal/api"
 	"iTcatt/orders/internal/api/product/dto"
 	"iTcatt/orders/internal/usecase"
-	"iTcatt/orders/internal/usecase/product"
 )
 
 func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +21,7 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.uc.UpdateProduct(r.Context(), id, in); err != nil {
-		if errors.Is(err, product.ErrProductNotFound) {
+		if errors.Is(err, usecase.ErrProductNotFound) {
 			api.SendNotFoundError(w, "product not found")
 			return
 		}
@@ -47,7 +46,7 @@ func (h *handler) extractUpdateInput(r *http.Request) (int32, usecase.UpdateProd
 	}
 
 	if err := h.v.Struct(in); err != nil {
-		return 0, usecase.UpdateProductIn{}, err
+		return 0, usecase.UpdateProductIn{}, fmt.Errorf("validation: %w", err)
 	}
 
 	return int32(id), usecase.UpdateProductIn{

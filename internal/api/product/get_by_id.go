@@ -9,7 +9,7 @@ import (
 	"iTcatt/orders/internal/api"
 	"iTcatt/orders/internal/api/product/dto"
 	"iTcatt/orders/internal/models"
-	uc "iTcatt/orders/internal/usecase/product"
+	"iTcatt/orders/internal/usecase"
 )
 
 func (h *handler) GetByID(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func (h *handler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	product, err := h.uc.GetProductByID(r.Context(), int32(id))
 	if err != nil {
-		if errors.Is(err, uc.ErrProductNotFound) {
+		if errors.Is(err, usecase.ErrProductNotFound) {
 			api.SendNotFoundError(w, "product not found")
 			return
 		}
