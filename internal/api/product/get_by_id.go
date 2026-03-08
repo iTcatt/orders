@@ -12,7 +12,7 @@ import (
 	uc "iTcatt/orders/internal/usecase/product"
 )
 
-func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
+func (h *handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)
@@ -30,12 +30,12 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out := convertToGetProductByIDOut(product)
+	out := convertToProduct(product)
 	api.SendJSON(w, out, http.StatusOK)
 }
 
-func convertToGetProductByIDOut(product models.Product) dto.GetProductByIDOut {
-	return dto.GetProductByIDOut{
+func convertToProduct(product models.Product) dto.Product {
+	return dto.Product{
 		ID:          product.ID,
 		Title:       product.Title,
 		Description: product.Description,

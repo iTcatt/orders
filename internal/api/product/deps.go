@@ -8,6 +8,7 @@ import (
 )
 
 type productUsecase interface {
+	GetProducts(ctx context.Context, in usecase.GetProductsIn) ([]models.Product, error)
 	GetProductByID(ctx context.Context, id int32) (models.Product, error)
 	CreateProduct(ctx context.Context, in usecase.CreateProductIn) (int32, error)
 	UpdateProduct(ctx context.Context, id int32, in usecase.UpdateProductIn) error

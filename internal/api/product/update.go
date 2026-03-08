@@ -12,8 +12,8 @@ import (
 	"iTcatt/orders/internal/usecase/product"
 )
 
-func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	id, in, err := extractInput(r)
+func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
+	id, in, err := extractUpdateInput(r)
 	if err != nil {
 		http.Error(w, "invalid input", http.StatusBadRequest)
 		return
@@ -32,7 +32,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func extractInput(r *http.Request) (int32, usecase.UpdateProductIn, error) {
+func extractUpdateInput(r *http.Request) (int32, usecase.UpdateProductIn, error) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		return 0, usecase.UpdateProductIn{}, fmt.Errorf("invalid id: %w", err)

@@ -11,6 +11,7 @@ func NewRouter(productHandler productHandler) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(logMiddleware())
 
+	router.Get("/product", productHandler.Get)
 	router.Get("/product/{id}", productHandler.GetByID)
 	router.Post("/product", productHandler.Create)
 	router.Patch("/product/{id}", productHandler.Update)

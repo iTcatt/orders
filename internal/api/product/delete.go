@@ -8,7 +8,7 @@ import (
 	"iTcatt/orders/internal/usecase/product"
 )
 
-func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *handler) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)

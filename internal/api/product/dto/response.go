@@ -2,7 +2,7 @@ package dto
 
 import "time"
 
-type GetProductByIDOut struct {
+type Product struct {
 	ID          int32     `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`

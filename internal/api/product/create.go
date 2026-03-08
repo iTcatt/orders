@@ -9,7 +9,7 @@ import (
 	"iTcatt/orders/internal/usecase"
 )
 
-func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 	var in dto.CreateProductIn
 	err := json.NewDecoder(r.Body).Decode(&in)
 	if err != nil {

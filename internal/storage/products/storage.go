@@ -8,25 +8,36 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"iTcatt/orders/internal/models"
-	"iTcatt/orders/internal/storage"
+	st "iTcatt/orders/internal/storage"
 	"iTcatt/orders/pkg/sqlp"
 )
 
 const productTable = "products"
 
-type Storage struct {
+type storage struct {
 	db      *sqlx.DB
 	builder sq.StatementBuilderType
 }
 
-func New(db *sqlx.DB) *Storage {
-	return &Storage{
+func New(db *sqlx.DB) *storage {
+	return &storage{
 		db:      db,
 		builder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 	}
 }
 
-func (s *Storage) GetByID(ctx context.Context, id int32) (models.Product, error) {
+func (s *storage) Get(ctx context.Context, in st.GetProductsIn) ([]models.Product, error) {
+	query := s.builder.
+		Select(getFields()...).
+		From(productTable).
+		OrderBy("id").
+		Limit(uint64(in.Limit)).
+		Offset(uint64(in.Offset))
+
+	return sqlp.Select[models.Product](ctx, s.db, query)
+}
+
+func (s *storage) GetByID(ctx context.Context, id int32) (models.Product, error) {
 	query := s.builder.
 		Select(getFields()...).
 		From(productTable).
@@ -35,7 +46,7 @@ func (s *Storage) GetByID(ctx context.Context, id int32) (models.Product, error)
 	return sqlp.Get[models.Product](ctx, s.db, query)
 }
 
-func (s *Storage) Create(ctx context.Context, p models.Product) error {
+func (s *storage) Create(ctx context.Context, p models.Product) error {
 	query := s.builder.
 		Insert(productTable).
 		SetMap(p.ToMap())
@@ -43,7 +54,7 @@ func (s *Storage) Create(ctx context.Context, p models.Product) error {
 	return sqlp.Insert[models.Product](ctx, s.db, query)
 }
 
-func (s *Storage) Delete(ctx context.Context, id int32) error {
+func (s *storage) Delete(ctx context.Context, id int32) error {
 	query := s.builder.
 		Delete(productTable).
 		Where(sq.Eq{"id": id})
@@ -51,7 +62,7 @@ func (s *Storage) Delete(ctx context.Context, id int32) error {
 	return sqlp.Delete[models.Product](ctx, s.db, query)
 }
 
-func (s *Storage) Update(ctx context.Context, id int32, in storage.UpdateProductIn) error {
+func (s *storage) Update(ctx context.Context, id int32, in st.UpdateProductIn) error {
 	query := s.builder.
 		Update(productTable).
 		SetMap(in.ToMap()).

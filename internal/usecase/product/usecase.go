@@ -28,6 +28,18 @@ func New(
 	}
 }
 
+func (u *usecase) GetProducts(ctx context.Context, in uc.GetProductsIn) ([]models.Product, error) {
+	products, err := u.repo.Get(ctx, storage.GetProductsIn{
+		Limit:  in.Limit,
+		Offset: (in.Page - 1) * in.Limit,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("get products: %w", err)
+	}
+
+	return products, nil
+}
+
 func (u *usecase) GetProductByID(ctx context.Context, id int32) (models.Product, error) {
 	product, err := u.repo.GetByID(ctx, id)
 	if err != nil {
