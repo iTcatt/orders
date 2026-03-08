@@ -2,6 +2,8 @@ package product
 
 import (
 	"encoding/json"
+	"fmt"
+	"log/slog"
 	"net/http"
 
 	"iTcatt/orders/internal/api"
@@ -10,16 +12,16 @@ import (
 )
 
 func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
-	var in dto.CreateProductIn
-	err := json.NewDecoder(r.Body).Decode(&in)
+	in, err := h.extractCreateInput(r)
 	if err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+		api.SendValidationError(w, err.Error())
 		return
 	}
 
-	id, err := h.uc.CreateProduct(r.Context(), convertInToDTO(in))
+	id, err := h.uc.CreateProduct(r.Context(), in)
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		slog.Error("failed to create product", slog.String("error", err.Error()))
+		api.SendInternalError(w, "failed to create product")
 		return
 	}
 
@@ -27,10 +29,19 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 	api.SendJSON(w, out, http.StatusCreated)
 }
 
-func convertInToDTO(in dto.CreateProductIn) usecase.CreateProductIn {
+func (h *handler) extractCreateInput(r *http.Request) (usecase.CreateProductIn, error) {
+	var in dto.CreateProductIn
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		return usecase.CreateProductIn{}, fmt.Errorf("invalid request body: %w", err)
+	}
+
+	if err := h.v.Struct(in); err != nil {
+		return usecase.CreateProductIn{}, fmt.Errorf("validation: %w", err)
+	}
+
 	return usecase.CreateProductIn{
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,
-	}
+	}, nil
 }

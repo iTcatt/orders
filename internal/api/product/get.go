@@ -1,6 +1,7 @@
 package product
 
 import (
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -21,7 +22,8 @@ func (h *handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	products, err := h.uc.GetProducts(r.Context(), in)
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		slog.Error("failed to get products", slog.String("error", err.Error()))
+		api.SendInternalError(w, "failed to get products")
 		return
 	}
 
