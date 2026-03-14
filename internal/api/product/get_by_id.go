@@ -19,7 +19,7 @@ func (h *handler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product, err := h.uc.GetProductByID(r.Context(), int32(id))
+	product, err := h.uc.GetProductByID(r.Context(), uint32(id))
 	if err != nil {
 		if errors.Is(err, usecase.ErrProductNotFound) {
 			api.SendNotFoundError(w, "product not found")

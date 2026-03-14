@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math/rand/v2"
 	"time"
 
 	"iTcatt/orders/internal/models"
@@ -14,17 +13,20 @@ import (
 )
 
 type usecase struct {
-	repo productRepo
-	now  func() time.Time
+	repo        productRepo
+	now         func() time.Time
+	idGenerator func() uint32
 }
 
 func New(
 	repo productRepo,
 	now func() time.Time,
+	idGen func() uint32,
 ) *usecase {
 	return &usecase{
-		repo: repo,
-		now:  now,
+		repo:        repo,
+		now:         now,
+		idGenerator: idGen,
 	}
 }
 
@@ -40,7 +42,7 @@ func (u *usecase) GetProducts(ctx context.Context, in uc.GetProductsIn) ([]model
 	return products, nil
 }
 
-func (u *usecase) GetProductByID(ctx context.Context, id int32) (models.Product, error) {
+func (u *usecase) GetProductByID(ctx context.Context, id uint32) (models.Product, error) {
 	product, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sqlp.ErrNotFound) {
@@ -53,9 +55,9 @@ func (u *usecase) GetProductByID(ctx context.Context, id int32) (models.Product,
 	return product, nil
 }
 
-func (u *usecase) CreateProduct(ctx context.Context, in uc.CreateProductIn) (int32, error) {
+func (u *usecase) CreateProduct(ctx context.Context, in uc.CreateProductIn) (uint32, error) {
 	product := models.Product{
-		ID:          rand.Int32(),
+		ID:          u.idGenerator(),
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,
@@ -69,7 +71,7 @@ func (u *usecase) CreateProduct(ctx context.Context, in uc.CreateProductIn) (int
 	return product.ID, nil
 }
 
-func (u *usecase) UpdateProduct(ctx context.Context, id int32, in uc.UpdateProductIn) error {
+func (u *usecase) UpdateProduct(ctx context.Context, id uint32, in uc.UpdateProductIn) error {
 	err := u.repo.Update(ctx, id, storage.UpdateProductIn{
 		Title:       in.Title,
 		Description: in.Description,
@@ -86,7 +88,7 @@ func (u *usecase) UpdateProduct(ctx context.Context, id int32, in uc.UpdateProdu
 	return nil
 }
 
-func (u *usecase) DeleteProduct(ctx context.Context, id int32) error {
+func (u *usecase) DeleteProduct(ctx context.Context, id uint32) error {
 	err := u.repo.Delete(ctx, id)
 	if err != nil {
 		if errors.Is(err, sqlp.ErrNotFound) {

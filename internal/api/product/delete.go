@@ -17,7 +17,7 @@ func (h *handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.uc.DeleteProduct(r.Context(), int32(id))
+	err := h.uc.DeleteProduct(r.Context(), uint32(id))
 	if err != nil {
 		if errors.Is(err, usecase.ErrProductNotFound) {
 			api.SendNotFoundError(w, "product not found")

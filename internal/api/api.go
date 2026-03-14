@@ -16,8 +16,15 @@ func SendJSON(w http.ResponseWriter, data any, code int) {
 
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		SendInternalError(w, "internal server error")
 	}
+}
+
+func SendError(w http.ResponseWriter, msg string, code int) {
+	SendJSON(w, errorResponse{
+		Message: msg,
+		Code:    code,
+	}, code)
 }
 
 func SendValidationError(w http.ResponseWriter, msg string) {
@@ -30,11 +37,4 @@ func SendNotFoundError(w http.ResponseWriter, msg string) {
 
 func SendInternalError(w http.ResponseWriter, msg string) {
 	SendError(w, msg, http.StatusInternalServerError)
-}
-
-func SendError(w http.ResponseWriter, msg string, code int) {
-	SendJSON(w, errorResponse{
-		Message: msg,
-		Code:    code,
-	}, code)
 }

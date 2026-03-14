@@ -3,7 +3,7 @@ package storage
 type UpdateProductIn struct {
 	Title       *string
 	Description *string
-	Price       *int32
+	Price       *uint32
 }
 
 func (in UpdateProductIn) ToMap() map[string]any {

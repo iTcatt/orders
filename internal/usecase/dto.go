@@ -8,11 +8,11 @@ type GetProductsIn struct {
 type CreateProductIn struct {
 	Title       string
 	Description string
-	Price       int32
+	Price       uint32
 }
 
 type UpdateProductIn struct {
 	Title       *string
 	Description *string
-	Price       *int32
+	Price       *uint32
 }

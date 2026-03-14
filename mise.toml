@@ -5,9 +5,11 @@ DB_USER = "postgres"
 DB_NAME = "master"
 
 [tools]
+go = "latest"
 "go:github.com/pressly/goose/v3/cmd/goose" = "latest"
 gofumpt = "latest"
 golangci-lint = "v2.10.1"
+mockery = "latest"
 
 [tasks.fmt]
 run = "gofumpt -w -l ."

@@ -34,7 +34,7 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *handler) extractUpdateInput(r *http.Request) (int32, usecase.UpdateProductIn, error) {
+func (h *handler) extractUpdateInput(r *http.Request) (uint32, usecase.UpdateProductIn, error) {
 	id, _ := strconv.Atoi(r.PathValue("id"))
 	if id <= 0 {
 		return 0, usecase.UpdateProductIn{}, fmt.Errorf("id must be positive")
@@ -49,7 +49,7 @@ func (h *handler) extractUpdateInput(r *http.Request) (int32, usecase.UpdateProd
 		return 0, usecase.UpdateProductIn{}, fmt.Errorf("validation: %w", err)
 	}
 
-	return int32(id), usecase.UpdateProductIn{
+	return uint32(id), usecase.UpdateProductIn{
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,

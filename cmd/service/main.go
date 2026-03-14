@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"os/signal"
@@ -37,7 +38,7 @@ func main() {
 	}()
 
 	productDB := products.New(db)
-	productUC := productUsecase.New(productDB, time.Now)
+	productUC := productUsecase.New(productDB, time.Now, rand.Uint32)
 	productHandler := apiProduct.New(productUC)
 
 	router := api.NewRouter(productHandler)
