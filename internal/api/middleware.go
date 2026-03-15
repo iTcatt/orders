@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/httplog/v3"
+	"github.com/go-chi/metrics"
 )
 
 func logMiddleware() func(http.Handler) http.Handler {
@@ -17,5 +18,18 @@ func logMiddleware() func(http.Handler) http.Handler {
 
 		LogRequestBody:  func(req *http.Request) bool { return true },
 		LogResponseBody: func(req *http.Request) bool { return true },
+		Skip: func(req *http.Request, respStatus int) bool {
+			return req.RequestURI == "/metrics"
+		},
+	})
+}
+
+func metricsMiddleware() func(http.Handler) http.Handler {
+	return metrics.Collector(metrics.CollectorOpts{
+		Host:  false,
+		Proto: true,
+		Skip: func(r *http.Request) bool {
+			return r.RequestURI == "/metrics"
+		},
 	})
 }
