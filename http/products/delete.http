@@ -1,0 +1,5 @@
+DELETE /product/{{product_id}}
+
+> {%
+    client.assert(response.status === 204)
+%}

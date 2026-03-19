@@ -1,0 +1,5 @@
+GET /product/{{product_id}}
+
+> {%
+    client.assert(response.status === 200)
+%}

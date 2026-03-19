@@ -11,8 +11,8 @@ type errorResponse struct {
 }
 
 func SendJSON(w http.ResponseWriter, data any, code int) {
-	w.WriteHeader(code)
 	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(code)
 
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {

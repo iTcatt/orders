@@ -1,0 +1,13 @@
+POST /product
+Content-Type: application/json
+
+{
+  "title": "product",
+  "description": "product description",
+  "price": 1000
+}
+
+> {%
+  client.assert(response.status === 201)
+  client.global.set("product_id", response.body.id)
+%}

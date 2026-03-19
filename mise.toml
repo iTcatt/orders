@@ -31,3 +31,9 @@ run = "goose postgres $DB_URL -dir migrations/postgres/master up"
 
 [tasks.down]
 run = "goose postgres $DB_URL -dir migrations/postgres/master down"
+
+[tasks.install_httpyac]
+run = "npm install -g httpyac"
+
+[tasks.httptest]
+run = "httpyac http/products/test.http -e dev -a"

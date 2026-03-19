@@ -1,0 +1,55 @@
+### Create product
+POST /product
+Content-Type: application/json
+
+{
+  "title": "product",
+  "description": "new product",
+  "price": 1000
+}
+
+> {%
+    client.assert(response.status === 201)
+    client.global.set("product_id", response.body.id)
+    client.log("product id: " + response.body.id)
+%}
+
+### Get product
+GET /product/{{product_id}}
+> {%
+    client.assert(response.status === 200)
+    client.assert(response.body.id === client.global.get("product_id"))
+    client.assert(response.body.title === "product")
+    client.assert(response.body.description === "new product")
+    client.assert(response.body.price === 1000)
+%}
+
+### Patch product
+PATCH /product/{{product_id}}
+Content-Type: application/json
+
+{
+  "title": "updated product",
+  "description": "updated product",
+  "price": 2000
+}
+
+> {%
+    client.assert(response.status === 200)
+%}
+
+### Get updated product
+GET /product/{{product_id}}
+> {%
+    client.assert(response.status === 200)
+    client.assert(response.body.id === client.global.get("product_id"))
+    client.assert(response.body.title === "updated product")
+    client.assert(response.body.description === "updated product")
+    client.assert(response.body.price === 2000)
+%}
+
+### Delete product
+DELETE /product/{{product_id}}
+> {%
+    client.assert(response.status === 204)
+%}

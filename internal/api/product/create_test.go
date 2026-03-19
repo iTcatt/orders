@@ -34,7 +34,7 @@ func TestHandler_CreateSuccess(t *testing.T) {
 		Once()
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("POST", "/product/", bytes.NewBuffer(bytesIn))
+	r := httptest.NewRequest(http.MethodPost, "/product/", bytes.NewBuffer(bytesIn))
 
 	h.Create(w, r)
 
@@ -59,7 +59,7 @@ func TestHandler_CreateUsecaseError(t *testing.T) {
 		Once()
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("POST", "/product/", bytes.NewBuffer(bytesIn))
+	r := httptest.NewRequest(http.MethodPost, "/product/", bytes.NewBuffer(bytesIn))
 
 	h.Create(w, r)
 
@@ -101,7 +101,7 @@ func TestHandler_CreateValidation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest("POST", "/product/", bytes.NewBufferString(tt.in))
+			r := httptest.NewRequest(http.MethodPost, "/product/", bytes.NewBufferString(tt.in))
 
 			h.Create(w, r)
 

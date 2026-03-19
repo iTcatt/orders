@@ -1,0 +1,3 @@
+@page=1
+@limit=5
+GET /product?page={{page}}&limit={{limit}}
