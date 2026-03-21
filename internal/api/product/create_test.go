@@ -16,36 +16,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestHandler_CreateSuccess(t *testing.T) {
-	d := setupDeps(t)
-	h := product.New(d.uc)
-
-	in := dto.CreateProductIn{
-		Title:       "Test Product",
-		Description: "Test Description",
-		Price:       100,
-	}
-	id := uint32(42)
-	bytesIn, _ := json.Marshal(in)
-
-	d.uc.EXPECT().
-		CreateProduct(mock.Anything, mock.Anything).
-		Return(id, nil).
-		Once()
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/product/", bytes.NewBuffer(bytesIn))
-
-	h.Create(w, r)
-
-	assert.Equal(t, http.StatusCreated, w.Code)
-	assert.Equal(t, `{"id":42}`, strings.TrimSpace(w.Body.String()))
-}
-
-func TestHandler_CreateUsecaseError(t *testing.T) {
-	d := setupDeps(t)
-	h := product.New(d.uc)
-
+func TestHandler_Create(t *testing.T) {
 	in := dto.CreateProductIn{
 		Title:       "Test Product",
 		Description: "Test Description",
@@ -53,23 +24,44 @@ func TestHandler_CreateUsecaseError(t *testing.T) {
 	}
 	bytesIn, _ := json.Marshal(in)
 
-	d.uc.EXPECT().
-		CreateProduct(mock.Anything, mock.Anything).
-		Return(0, errors.New("some error")).
-		Once()
+	t.Run("success", func(t *testing.T) {
+		d := setupDeps(t)
+		h := product.New(d.uc)
+		id := uint32(42)
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/product/", bytes.NewBuffer(bytesIn))
+		d.uc.EXPECT().
+			CreateProduct(mock.Anything, mock.Anything).
+			Return(id, nil).
+			Once()
 
-	h.Create(w, r)
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, "/product/", bytes.NewBuffer(bytesIn))
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	assert.Equal(t, `{"message":"failed to create product","code":500}`, strings.TrimSpace(w.Body.String()))
+		h.Create(w, r)
+		assert.Equal(t, http.StatusCreated, w.Code)
+		assert.Equal(t, `{"id":42}`, strings.TrimSpace(w.Body.String()))
+	})
+
+	t.Run("usecase error", func(t *testing.T) {
+		d := setupDeps(t)
+		h := product.New(d.uc)
+
+		d.uc.EXPECT().
+			CreateProduct(mock.Anything, mock.Anything).
+			Return(0, errors.New("some error")).
+			Once()
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodPost, "/product/", bytes.NewBuffer(bytesIn))
+
+		h.Create(w, r)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Contains(t, `{"message":"failed to create product","code":500}`, strings.TrimSpace(w.Body.String()))
+	})
 }
 
 func TestHandler_CreateValidation(t *testing.T) {
-	d := setupDeps(t)
-	h := product.New(d.uc)
+	h := product.New(nil)
 
 	tests := []struct {
 		name string
@@ -104,7 +96,6 @@ func TestHandler_CreateValidation(t *testing.T) {
 			r := httptest.NewRequest(http.MethodPost, "/product/", bytes.NewBufferString(tt.in))
 
 			h.Create(w, r)
-
 			assert.Equal(t, http.StatusBadRequest, w.Code)
 			assert.Equal(t, tt.want, strings.TrimSpace(w.Body.String()))
 		})
