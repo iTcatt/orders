@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   postgres:
     container_name: postgres
@@ -10,6 +12,25 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  migrations:
+    image: ghcr.io/kukymbr/goose-docker:3.24.2
+    container_name: goose-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: host=postgres port=5432 user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} sslmode=disable
+    volumes:
+      - ./migrations/postgres/master:/migrations
+    restart: "no"
 
   prometheus:
     container_name: prometheus
