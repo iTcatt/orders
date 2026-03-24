@@ -32,6 +32,17 @@ services:
       - ./migrations/postgres/master:/migrations
     restart: "no"
 
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      postgres:
+        condition: service_healthy
+          
   prometheus:
     container_name: prometheus
     image: prom/prometheus:latest
