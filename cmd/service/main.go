@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"math/rand/v2"
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/golang-cz/devslog"
@@ -20,15 +22,21 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		panic(err)
-	}
-
 	setupLogger()
+	if err := run(); err != nil {
+		slog.Error("service stopped with error", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	if err := godotenv.Load(); err != nil {
+		return fmt.Errorf(".env file not loaded: %w", err)
+	}
 
 	db, err := postgres.New(os.Getenv("DB_URL"))
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 	defer func() {
 		err = db.Close()
@@ -51,25 +59,33 @@ func main() {
 		Handler:      router,
 	}
 
+	errCh := make(chan error, 1)
 	go func() {
 		slog.Info("Start server")
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			panic(err)
+			errCh <- err
 		}
 	}()
 
 	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-	<-ch
+	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+
+	select {
+	case err := <-errCh:
+		return fmt.Errorf("server failed: %w", err)
+	case <-ch:
+	}
 
 	slog.Info("Shutdown server")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		panic(err)
+		return fmt.Errorf("failed to shutdown server: %w", err)
 	}
+
+	return nil
 }
 
 func setupLogger() {

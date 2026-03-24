@@ -1,0 +1,12 @@
+GET http://localhost:8081/product/2070790468
+GET http://localhost:8081/product/2951869957
+GET http://localhost:8081/product/2245243792
+GET http://localhost:8081/product/3090572386
+GET http://localhost:8081/product/1537943661
+GET http://localhost:8081/product/4195563632
+GET http://localhost:8081/product/670595282
+GET http://localhost:8081/product/617554428
+GET http://localhost:8081/product/3926944956
+GET http://localhost:8081/product/4236050377
+GET http://localhost:8081/product/3568935288
+GET http://localhost:8081/product/2736208007

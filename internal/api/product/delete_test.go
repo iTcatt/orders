@@ -73,7 +73,7 @@ func TestHandler_Delete(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
 		assert.Equal(t, `{"message":"failed to delete product","code":500}`, strings.TrimSpace(resp.Body.String()))
 	})
-	
+
 	t.Run("validation error", func(t *testing.T) {
 		handler := product.New(nil)
 		mux := http.NewServeMux()

@@ -5,6 +5,7 @@ DB_USER = "postgres"
 DB_NAME = "master"
 
 [tools]
+"aqua:tsenart/vegeta" = "latest"
 go = "latest"
 "go:github.com/pressly/goose/v3/cmd/goose" = "latest"
 gofumpt = "latest"

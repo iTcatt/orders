@@ -49,6 +49,10 @@ func (h *handler) extractUpdateInput(r *http.Request) (uint32, usecase.UpdatePro
 		return 0, usecase.UpdateProductIn{}, fmt.Errorf("validation: %w", err)
 	}
 
+	if in.Title == nil && in.Description == nil && in.Price == nil {
+		return 0, usecase.UpdateProductIn{}, fmt.Errorf("at least one field must be provided")
+	}
+
 	return uint32(id), usecase.UpdateProductIn{
 		Title:       in.Title,
 		Description: in.Description,

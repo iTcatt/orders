@@ -111,6 +111,12 @@ func TestHandler_UpdateValidation(t *testing.T) {
 			in:   `{"title": "Test Product", "description": "Test Description", "price": 100}`,
 			want: `{"message":"id must be positive","code":400}`,
 		},
+		{
+			name: "empty payload",
+			id:   1,
+			in:   `{}`,
+			want: `{"message":"at least one field must be provided","code":400}`,
+		},
 	}
 
 	for _, tt := range tests {
