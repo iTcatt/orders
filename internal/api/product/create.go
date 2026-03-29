@@ -30,6 +30,8 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) extractCreateInput(r *http.Request) (usecase.CreateProductIn, error) {
+	defer r.Body.Close()
+
 	var in dto.CreateProductIn
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		return usecase.CreateProductIn{}, fmt.Errorf("invalid request body: %w", err)

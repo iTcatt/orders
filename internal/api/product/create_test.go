@@ -9,11 +9,11 @@ import (
 	"strings"
 	"testing"
 
-	"iTcatt/orders/internal/api/product"
-	"iTcatt/orders/internal/api/product/dto"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"iTcatt/orders/internal/api/product"
+	"iTcatt/orders/internal/api/product/dto"
 )
 
 func TestHandler_Create(t *testing.T) {

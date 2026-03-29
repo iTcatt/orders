@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
-
-	"iTcatt/orders/internal/api/product"
-	"iTcatt/orders/internal/usecase"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+
+	"iTcatt/orders/internal/api/product"
+	"iTcatt/orders/internal/usecase"
 )
 
 const productID = uint32(1)
@@ -29,7 +28,7 @@ func TestHandler_Delete(t *testing.T) {
 			Return(nil).
 			Once()
 
-		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), nil)
+		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
 		resp := httptest.NewRecorder()
 
 		mux.ServeHTTP(resp, req)
@@ -47,12 +46,12 @@ func TestHandler_Delete(t *testing.T) {
 			Return(usecase.ErrProductNotFound).
 			Once()
 
-		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), nil)
+		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
 		resp := httptest.NewRecorder()
 
 		mux.ServeHTTP(resp, req)
 		assert.Equal(t, http.StatusNotFound, resp.Code)
-		assert.Equal(t, `{"message":"product not found","code":404}`, strings.TrimSpace(resp.Body.String()))
+		assert.JSONEq(t, `{"message":"product not found","code":404}`, resp.Body.String())
 	})
 
 	t.Run("internal error", func(t *testing.T) {
@@ -66,12 +65,12 @@ func TestHandler_Delete(t *testing.T) {
 			Return(errors.New("some error")).
 			Once()
 
-		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), nil)
+		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
 		resp := httptest.NewRecorder()
 
 		mux.ServeHTTP(resp, req)
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
-		assert.Equal(t, `{"message":"failed to delete product","code":500}`, strings.TrimSpace(resp.Body.String()))
+		assert.JSONEq(t, `{"message":"failed to delete product","code":500}`, resp.Body.String())
 	})
 
 	t.Run("validation error", func(t *testing.T) {
@@ -79,11 +78,11 @@ func TestHandler_Delete(t *testing.T) {
 		mux := http.NewServeMux()
 		mux.HandleFunc("DELETE /product/{id}", handler.Delete)
 
-		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", -100), nil)
+		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", -100), http.NoBody)
 		resp := httptest.NewRecorder()
 
 		mux.ServeHTTP(resp, req)
 		assert.Equal(t, http.StatusBadRequest, resp.Code)
-		assert.Equal(t, `{"message":"id must be positive","code":400}`, strings.TrimSpace(resp.Body.String()))
+		assert.JSONEq(t, `{"message":"id must be positive","code":400}`, resp.Body.String())
 	})
 }

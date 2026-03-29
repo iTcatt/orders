@@ -10,12 +10,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+
 	"iTcatt/orders/internal/api/product"
 	"iTcatt/orders/internal/api/product/dto"
 	"iTcatt/orders/internal/usecase"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestHandler_Update(t *testing.T) {

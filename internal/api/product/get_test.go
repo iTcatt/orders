@@ -6,12 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+
 	"iTcatt/orders/internal/api/product"
 	"iTcatt/orders/internal/models"
 	"iTcatt/orders/internal/usecase"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestHandler_Get(t *testing.T) {
@@ -29,7 +29,7 @@ func TestHandler_Get(t *testing.T) {
 			Return(products, nil).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, "/product/?page=1&limit=10", nil)
+		req := httptest.NewRequest(http.MethodGet, "/product/?page=1&limit=10", http.NoBody)
 		resp := httptest.NewRecorder()
 
 		h.Get(resp, req)
@@ -47,7 +47,7 @@ func TestHandler_Get(t *testing.T) {
 			Return([]models.Product{}, nil).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, "/product/", nil)
+		req := httptest.NewRequest(http.MethodGet, "/product/", http.NoBody)
 		resp := httptest.NewRecorder()
 
 		h.Get(resp, req)
@@ -64,7 +64,7 @@ func TestHandler_Get(t *testing.T) {
 			Return(nil, errors.New("some error")).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, "/product/", nil)
+		req := httptest.NewRequest(http.MethodGet, "/product/", http.NoBody)
 		resp := httptest.NewRecorder()
 
 		h.Get(resp, req)

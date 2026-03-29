@@ -6,15 +6,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+
 	"iTcatt/orders/internal/models"
 	"iTcatt/orders/internal/storage"
 	"iTcatt/orders/internal/usecase"
 	"iTcatt/orders/internal/usecase/product"
 	"iTcatt/orders/internal/usecase/product/mocks"
 	"iTcatt/orders/pkg/sqlp"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 const (
@@ -115,7 +116,7 @@ func TestUsecase_GetProducts(t *testing.T) {
 			if tt.wantErr != "" {
 				assert.EqualError(t, err, tt.wantErr)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tt.want, products)
 			}
 		})
@@ -178,7 +179,7 @@ func TestUsecase_GetProductByID(t *testing.T) {
 			if tt.wantErr != "" {
 				assert.EqualError(t, err, tt.wantErr)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, p, got)
 			}
 		})
@@ -236,7 +237,7 @@ func TestUsecase_CreateProduct(t *testing.T) {
 			if tt.wantErr != "" {
 				assert.EqualError(t, err, tt.wantErr)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, productID, id)
 			}
 		})
@@ -269,6 +270,16 @@ func TestUsecase_UpdateProduct(t *testing.T) {
 			},
 		},
 		{
+			name: "not found",
+			setup: func(d *deps) {
+				d.productRepo.EXPECT().
+					Update(mock.Anything, productID, storageIn).
+					Return(sqlp.ErrNotFound).
+					Once()
+			},
+			wantErr: usecase.ErrProductNotFound.Error(),
+		},
+		{
 			name: "db error",
 			setup: func(d *deps) {
 				d.productRepo.EXPECT().
@@ -291,7 +302,7 @@ func TestUsecase_UpdateProduct(t *testing.T) {
 			if tt.wantErr != "" {
 				assert.EqualError(t, err, tt.wantErr)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -347,7 +358,7 @@ func TestUsecase_DeleteProduct(t *testing.T) {
 			if tt.wantErr != "" {
 				assert.EqualError(t, err, tt.wantErr)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}

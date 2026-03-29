@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -55,15 +56,13 @@ func Insert[T any](ctx context.Context, db *sqlx.DB, query sq.InsertBuilder) err
 		return fmt.Errorf("failed to build insert query: %w", err)
 	}
 
-	res, err := db.ExecContext(ctx, q, args...)
+	_, err = db.ExecContext(ctx, q, args...)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return ErrAlreadyExists
+		}
 		return fmt.Errorf("failed to execute insert query: %w", err)
-	}
-
-	if rows, err := res.RowsAffected(); err != nil {
-		return fmt.Errorf("failed to get rows affected: %w", err)
-	} else if rows == 0 {
-		return ErrAlreadyExists
 	}
 
 	return nil

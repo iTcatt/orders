@@ -35,6 +35,8 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) extractUpdateInput(r *http.Request) (uint32, usecase.UpdateProductIn, error) {
+	defer r.Body.Close()
+
 	id, _ := strconv.Atoi(r.PathValue("id"))
 	if id <= 0 {
 		return 0, usecase.UpdateProductIn{}, fmt.Errorf("id must be positive")

@@ -7,12 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+
 	"iTcatt/orders/internal/api/product"
 	"iTcatt/orders/internal/models"
 	"iTcatt/orders/internal/usecase"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestHandler_GetByID(t *testing.T) {
@@ -35,7 +35,7 @@ func TestHandler_GetByID(t *testing.T) {
 			Return(p, nil).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), nil)
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
 		resp := httptest.NewRecorder()
 
 		mux.ServeHTTP(resp, req)
@@ -57,7 +57,7 @@ func TestHandler_GetByID(t *testing.T) {
 			Return(models.Product{}, usecase.ErrProductNotFound).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), nil)
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
 		resp := httptest.NewRecorder()
 
 		mux.ServeHTTP(resp, req)
@@ -70,7 +70,7 @@ func TestHandler_GetByID(t *testing.T) {
 		mux := http.NewServeMux()
 		mux.HandleFunc("GET /product/{id}", h.GetByID)
 
-		req := httptest.NewRequest(http.MethodGet, "/product/-100", nil)
+		req := httptest.NewRequest(http.MethodGet, "/product/-100", http.NoBody)
 		resp := httptest.NewRecorder()
 
 		mux.ServeHTTP(resp, req)
@@ -91,7 +91,7 @@ func TestHandler_GetByID(t *testing.T) {
 			Return(models.Product{}, errors.New("some error")).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), nil)
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
 		resp := httptest.NewRecorder()
 
 		mux.ServeHTTP(resp, req)

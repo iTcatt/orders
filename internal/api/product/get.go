@@ -1,6 +1,7 @@
 package product
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -18,7 +19,11 @@ const (
 )
 
 func (h *handler) Get(w http.ResponseWriter, r *http.Request) {
-	in := extractGetInput(r)
+	in, err := extractGetInput(r)
+	if err != nil {
+		api.SendValidationError(w, err.Error())
+		return
+	}
 
 	products, err := h.uc.GetProducts(r.Context(), in)
 	if err != nil {
@@ -31,14 +36,15 @@ func (h *handler) Get(w http.ResponseWriter, r *http.Request) {
 	api.SendJSON(w, out, http.StatusOK)
 }
 
-func extractGetInput(r *http.Request) usecase.GetProductsIn {
-	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if page <= 0 {
-		page = defaultPage
+func extractGetInput(r *http.Request) (usecase.GetProductsIn, error) {
+	page, err := parseQueryInt(r.URL.Query().Get("page"), defaultPage)
+	if err != nil {
+		return usecase.GetProductsIn{}, fmt.Errorf("invalid page: %w", err)
 	}
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit <= 0 {
-		limit = defaultLimit
+
+	limit, err := parseQueryInt(r.URL.Query().Get("limit"), defaultLimit)
+	if err != nil {
+		return usecase.GetProductsIn{}, fmt.Errorf("invalid limit: %w", err)
 	}
 	if limit > maxLimit {
 		limit = maxLimit
@@ -47,7 +53,18 @@ func extractGetInput(r *http.Request) usecase.GetProductsIn {
 	return usecase.GetProductsIn{
 		Page:  int32(page),
 		Limit: int32(limit),
+	}, nil
+}
+
+func parseQueryInt(s string, defaultVal int) (int, error) {
+	if s == "" {
+		return defaultVal, nil
 	}
+	v, err := strconv.Atoi(s)
+	if err != nil || v <= 0 {
+		return 0, fmt.Errorf("must be a positive integer")
+	}
+	return v, nil
 }
 
 func convertToProductSlice(products []models.Product) []dto.Product {
