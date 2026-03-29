@@ -32,6 +32,7 @@ linters:
         - performance
       disabled-checks:
         - hugeParam  # models.Product is passed by value intentionally; pointer changes would require refactoring all interfaces
+        - whyNoLint  # nolint directives don't need inline explanations
 
     nakedret:
       max-func-lines: 30
