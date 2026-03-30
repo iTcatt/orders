@@ -1,8 +1,8 @@
 package usecase
 
 type GetProductsIn struct {
-	Page  int32
-	Limit int32
+	Page  uint32
+	Limit uint32
 }
 
 type CreateProductIn struct {

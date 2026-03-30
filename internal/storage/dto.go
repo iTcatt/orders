@@ -21,6 +21,6 @@ func (in UpdateProductIn) ToMap() map[string]any {
 }
 
 type GetProductsIn struct {
-	Limit  int32
-	Offset int32
+	Limit  uint32
+	Offset uint32
 }

@@ -3,22 +3,29 @@ version: "2"
 linters:
   default: standard
   enable:
-    - bodyclose       # HTTP response bodies are closed
-    - errorlint       # incorrect error wrapping/comparison (use errors.Is/As)
-    - gocritic        # broad set of opinionated Go checks
-    - misspell        # typos in comments and strings
-    - nakedret        # naked returns in long functions
-    - nestif          # deeply nested if statements
-    - noctx           # HTTP requests sent without context.Context
-    - nolintlint      # malformed or unnecessary nolint directives
-    - prealloc        # slice declarations that can be preallocated
-    - revive          # drop-in replacement for golint
-    - rowserrcheck    # sql.Rows.Err() not checked after iteration
-    - sqlclosecheck   # sql.Rows / sql.Stmt not closed
-    - testifylint     # incorrect testify usage
-    - unconvert       # unnecessary type conversions
-    - unparam         # function parameters that are always the same value
-    - whitespace      # unnecessary blank lines at block boundaries
+    - govet
+    - unused
+    - staticcheck
+    - errcheck
+    - ineffassign
+    - gosec
+    - intrange
+    - bodyclose # HTTP response bodies are closed
+    - errorlint # incorrect error wrapping/comparison (use errors.Is/As)
+    - gocritic # broad set of opinionated Go checks
+    - misspell # typos in comments and strings
+    - nakedret # naked returns in long functions
+    - nestif # deeply nested if statements
+    - noctx # HTTP requests sent without context.Context
+    - nolintlint # malformed or unnecessary nolint directives
+    - prealloc # slice declarations that can be preallocated
+    - revive # drop-in replacement for golint
+    - rowserrcheck # sql.Rows.Err() not checked after iteration
+    - sqlclosecheck # sql.Rows / sql.Stmt not closed
+    - testifylint # incorrect testify usage
+    - unconvert # unnecessary type conversions
+    - unparam # function parameters that are always the same value
+    - whitespace # unnecessary blank lines at block boundaries
 
   settings:
     errcheck:
@@ -31,8 +38,8 @@ linters:
         - style
         - performance
       disabled-checks:
-        - hugeParam  # models.Product is passed by value intentionally; pointer changes would require refactoring all interfaces
-        - whyNoLint  # nolint directives don't need inline explanations
+        - hugeParam # models.Product is passed by value intentionally; pointer changes would require refactoring all interfaces
+        - whyNoLint # nolint directives don't need inline explanations
 
     nakedret:
       max-func-lines: 30
@@ -43,16 +50,16 @@ linters:
     revive:
       rules:
         - name: exported
-          disabled: true  # don't require doc comments on every export
+          disabled: true # don't require doc comments on every export
 
 formatters:
   enable:
     - gofmt # base Go formatting
-    - gci   # enforces consistent import grouping order
+    - gci # enforces consistent import grouping order
 
   settings:
     gci:
       sections:
-        - standard              # stdlib
-        - default               # third-party
+        - standard # stdlib
+        - default # third-party
         - prefix(iTcatt/orders) # project-local

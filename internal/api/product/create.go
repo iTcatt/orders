@@ -20,7 +20,7 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	id, err := h.uc.CreateProduct(r.Context(), in)
 	if err != nil {
-		slog.Error("failed to create product", slog.String("error", err.Error()))
+		slog.Error("failed to create product", slog.Any("error", err))
 		api.SendInternalError(w, "failed to create product")
 		return
 	}

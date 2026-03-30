@@ -26,7 +26,7 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		slog.Error("failed to update product", slog.String("error", err.Error()))
+		slog.Error("failed to update product", slog.Any("error", err))
 		api.SendInternalError(w, "failed to update product")
 		return
 	}
@@ -37,8 +37,8 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 func (h *handler) extractUpdateInput(r *http.Request) (uint32, usecase.UpdateProductIn, error) {
 	defer r.Body.Close()
 
-	id, _ := strconv.Atoi(r.PathValue("id"))
-	if id <= 0 {
+	idRaw, err := strconv.ParseUint(r.PathValue("id"), 10, 32)
+	if err != nil || idRaw == 0 {
 		return 0, usecase.UpdateProductIn{}, fmt.Errorf("id must be positive")
 	}
 
@@ -55,7 +55,7 @@ func (h *handler) extractUpdateInput(r *http.Request) (uint32, usecase.UpdatePro
 		return 0, usecase.UpdateProductIn{}, fmt.Errorf("at least one field must be provided")
 	}
 
-	return uint32(id), usecase.UpdateProductIn{
+	return uint32(idRaw), usecase.UpdateProductIn{
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,
