@@ -5,6 +5,7 @@ go 1.26
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/cors v1.2.2
 	github.com/go-chi/httplog/v3 v3.3.0
 	github.com/go-chi/metrics v0.1.1
 	github.com/go-playground/validator/v10 v10.30.1

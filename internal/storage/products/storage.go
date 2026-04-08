@@ -30,7 +30,7 @@ func (s *storage) Get(ctx context.Context, in st.GetProductsIn) ([]models.Produc
 	query := s.builder.
 		Select(getFields()...).
 		From(productTable).
-		OrderBy("id").
+		OrderBy("created_at DESC").
 		Limit(uint64(in.Limit)).
 		Offset(uint64(in.Offset))
 
