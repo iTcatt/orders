@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"iTcatt/orders/internal/api"
 	"iTcatt/orders/internal/usecase"
+	"iTcatt/orders/pkg/api"
 )
 
 func (h *handler) Delete(w http.ResponseWriter, r *http.Request) {

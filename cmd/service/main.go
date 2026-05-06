@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"math/rand/v2"
@@ -21,27 +22,31 @@ import (
 	productUsecase "iTcatt/orders/internal/usecase/product"
 )
 
+const shutdownTimeout = 5 * time.Second
+
 func main() {
 	setupLogger()
 	if err := run(); err != nil {
-		slog.Error("service stopped with error", slog.String("error", err.Error()))
+		slog.Error("service stopped with error", slog.Any("error", err))
 		os.Exit(1)
 	}
 }
 
 func run() error {
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
+
 	if err := godotenv.Load(); err != nil {
 		return fmt.Errorf(".env file not loaded: %w", err)
 	}
 
 	db, err := postgres.New(os.Getenv("DB_URL"))
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %w", err)
+		return fmt.Errorf("connect to database: %w", err)
 	}
 	defer func() {
-		err = db.Close()
-		if err != nil {
-			slog.Error("close error", slog.String("err", err.Error()))
+		if err = db.Close(); err != nil {
+			slog.Error("close database", slog.Any("error", err))
 		}
 	}()
 
@@ -52,39 +57,31 @@ func run() error {
 	router := api.NewRouter(productHandler)
 
 	server := &http.Server{
-		Addr:         ":8081",
-		IdleTimeout:  1 * time.Second,
-		ReadTimeout:  1 * time.Second,
-		WriteTimeout: 1 * time.Second,
-		Handler:      router,
+		Addr:              ":8081",
+		ReadHeaderTimeout: 3 * time.Second,
+		ReadTimeout:       5 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       60 * time.Second,
+		Handler:           router,
 	}
 
-	errCh := make(chan error, 1)
 	go func() {
 		slog.Info("Start server")
 		err := server.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
-			errCh <- err
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			slog.Error("failed to start server", slog.Any("error", err))
 		}
 	}()
+	<-ctx.Done()
 
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer shutdownCancel()
 
-	select {
-	case err := <-errCh:
-		return fmt.Errorf("server failed: %w", err)
-	case <-ch:
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		return fmt.Errorf("shutdown server: %w", err)
 	}
 
 	slog.Info("Shutdown server")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := server.Shutdown(ctx); err != nil {
-		return fmt.Errorf("failed to shutdown server: %w", err)
-	}
-
 	return nil
 }
 

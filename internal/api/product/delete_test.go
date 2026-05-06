@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,8 +21,6 @@ func TestHandler_Delete(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		d := setupDeps(t)
 		handler := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("DELETE /product/{id}", handler.Delete)
 
 		d.uc.EXPECT().
 			DeleteProduct(mock.Anything, productID).
@@ -29,17 +28,16 @@ func TestHandler_Delete(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
+		req.SetPathValue("id", strconv.Itoa(int(productID)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		handler.Delete(resp, req)
 		assert.Equal(t, http.StatusNoContent, resp.Code)
 	})
 
 	t.Run("not found", func(t *testing.T) {
 		d := setupDeps(t)
 		handler := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("DELETE /product/{id}", handler.Delete)
 
 		d.uc.EXPECT().
 			DeleteProduct(mock.Anything, productID).
@@ -47,9 +45,10 @@ func TestHandler_Delete(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
+		req.SetPathValue("id", strconv.Itoa(int(productID)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		handler.Delete(resp, req)
 		assert.Equal(t, http.StatusNotFound, resp.Code)
 		assert.JSONEq(t, `{"message":"product not found","code":404}`, resp.Body.String())
 	})
@@ -57,8 +56,6 @@ func TestHandler_Delete(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		d := setupDeps(t)
 		handler := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("DELETE /product/{id}", handler.Delete)
 
 		d.uc.EXPECT().
 			DeleteProduct(mock.Anything, productID).
@@ -66,22 +63,22 @@ func TestHandler_Delete(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
+		req.SetPathValue("id", strconv.Itoa(int(productID)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		handler.Delete(resp, req)
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
 		assert.JSONEq(t, `{"message":"failed to delete product","code":500}`, resp.Body.String())
 	})
 
 	t.Run("validation error", func(t *testing.T) {
 		handler := product.New(nil)
-		mux := http.NewServeMux()
-		mux.HandleFunc("DELETE /product/{id}", handler.Delete)
 
 		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", -100), http.NoBody)
+		req.SetPathValue("id", strconv.Itoa(-100))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		handler.Delete(resp, req)
 		assert.Equal(t, http.StatusBadRequest, resp.Code)
 		assert.JSONEq(t, `{"message":"id must be positive","code":400}`, resp.Body.String())
 	})

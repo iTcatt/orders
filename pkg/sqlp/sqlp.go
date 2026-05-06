@@ -8,7 +8,6 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -16,7 +15,13 @@ var (
 	ErrNotFound      = errors.New("not found")
 )
 
-func Get[T any](ctx context.Context, db *sqlx.DB, query sq.SelectBuilder) (T, error) {
+type querier interface {
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
+	SelectContext(ctx context.Context, dest any, query string, args ...any) error
+	GetContext(ctx context.Context, dest any, query string, args ...any) error
+}
+
+func Get[T any](ctx context.Context, db querier, query sq.SelectBuilder) (T, error) {
 	var result T
 
 	q, args, err := query.ToSql()
@@ -35,52 +40,51 @@ func Get[T any](ctx context.Context, db *sqlx.DB, query sq.SelectBuilder) (T, er
 	return result, nil
 }
 
-func Select[T any](ctx context.Context, db *sqlx.DB, query sq.SelectBuilder) ([]T, error) {
+func Select[T any](ctx context.Context, db querier, query sq.SelectBuilder) ([]T, error) {
 	q, args, err := query.ToSql()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("build select query: %w", err)
 	}
 
 	var result []T
 	err = db.SelectContext(ctx, &result, q, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("execute select query: %w", err)
 	}
 
 	return result, nil
 }
 
-func Insert[T any](ctx context.Context, db *sqlx.DB, query sq.InsertBuilder) error {
+func Insert(ctx context.Context, db querier, query sq.InsertBuilder) error {
 	q, args, err := query.ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build insert query: %w", err)
+		return fmt.Errorf("build insert query: %w", err)
 	}
 
 	_, err = db.ExecContext(ctx, q, args...)
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" {
 			return ErrAlreadyExists
 		}
-		return fmt.Errorf("failed to execute insert query: %w", err)
+		return fmt.Errorf("execute insert query: %w", err)
 	}
 
 	return nil
 }
 
-func Update[T any](ctx context.Context, db *sqlx.DB, q sq.UpdateBuilder) error {
+func Update(ctx context.Context, db querier, q sq.UpdateBuilder) error {
 	query, args, err := q.ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build update query: %w", err)
+		return fmt.Errorf("build update query: %w", err)
 	}
 
 	affected, err := db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed to execute update query: %w", err)
+		return fmt.Errorf("execute update query: %w", err)
 	}
 
 	if rows, err := affected.RowsAffected(); err != nil {
-		return fmt.Errorf("failed to get rows affected: %w", err)
+		return fmt.Errorf("get rows affected: %w", err)
 	} else if rows == 0 {
 		return ErrNotFound
 	}
@@ -88,19 +92,19 @@ func Update[T any](ctx context.Context, db *sqlx.DB, q sq.UpdateBuilder) error {
 	return nil
 }
 
-func Delete[T any](ctx context.Context, db *sqlx.DB, q sq.DeleteBuilder) error {
+func Delete(ctx context.Context, db querier, q sq.DeleteBuilder) error {
 	query, args, err := q.ToSql()
 	if err != nil {
-		return fmt.Errorf("failed to build delete query: %w", err)
+		return fmt.Errorf("build delete query: %w", err)
 	}
 
 	affected, err := db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed to execute delete query: %w", err)
+		return fmt.Errorf("execute delete query: %w", err)
 	}
 
 	if rows, err := affected.RowsAffected(); err != nil {
-		return fmt.Errorf("failed to get rows affected: %w", err)
+		return fmt.Errorf("get rows affected: %w", err)
 	} else if rows == 0 {
 		return ErrNotFound
 	}

@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"iTcatt/orders/internal/api"
 	"iTcatt/orders/internal/api/product/dto"
 	"iTcatt/orders/internal/usecase"
+	"iTcatt/orders/pkg/api"
 )
 
 func (h *handler) Update(w http.ResponseWriter, r *http.Request) {

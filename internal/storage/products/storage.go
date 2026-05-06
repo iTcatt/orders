@@ -51,7 +51,7 @@ func (s *storage) Create(ctx context.Context, p models.Product) error {
 		Insert(productTable).
 		SetMap(p.ToMap())
 
-	return sqlp.Insert[models.Product](ctx, s.db, query)
+	return sqlp.Insert(ctx, s.db, query)
 }
 
 func (s *storage) Delete(ctx context.Context, id uint32) error {
@@ -59,7 +59,7 @@ func (s *storage) Delete(ctx context.Context, id uint32) error {
 		Delete(productTable).
 		Where(sq.Eq{"id": id})
 
-	return sqlp.Delete[models.Product](ctx, s.db, query)
+	return sqlp.Delete(ctx, s.db, query)
 }
 
 func (s *storage) Update(ctx context.Context, id uint32, in st.UpdateProductIn) error {
@@ -69,7 +69,7 @@ func (s *storage) Update(ctx context.Context, id uint32, in st.UpdateProductIn) 
 		Set("updated_at", time.Now()).
 		Where(sq.Eq{"id": id})
 
-	return sqlp.Update[models.Product](ctx, s.db, query)
+	return sqlp.Update(ctx, s.db, query)
 }
 
 func getFields() []string {

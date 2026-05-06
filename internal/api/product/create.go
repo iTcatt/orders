@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"iTcatt/orders/internal/api"
 	"iTcatt/orders/internal/api/product/dto"
 	"iTcatt/orders/internal/usecase"
+	"iTcatt/orders/pkg/api"
 )
 
 func (h *handler) Create(w http.ResponseWriter, r *http.Request) {

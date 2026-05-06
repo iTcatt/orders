@@ -8,12 +8,8 @@ import (
 )
 
 func New(url string) (*sqlx.DB, error) {
-	db, err := sqlx.Open("pgx", url)
+	db, err := sqlx.Connect("pgx", url)
 	if err != nil {
-		return nil, err
-	}
-
-	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 

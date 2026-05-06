@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -30,8 +31,6 @@ func TestHandler_Update(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("PATCH /product/{id}", h.Update)
 
 		d.uc.EXPECT().
 			UpdateProduct(mock.Anything, productID, mock.Anything).
@@ -39,17 +38,16 @@ func TestHandler_Update(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%d", productID), bytes.NewBuffer(bytesIn))
+		req.SetPathValue("id", strconv.Itoa(int(productID)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		h.Update(resp, req)
 		assert.Equal(t, http.StatusOK, resp.Code)
 	})
 
 	t.Run("not found", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("PATCH /product/{id}", h.Update)
 
 		d.uc.EXPECT().
 			UpdateProduct(mock.Anything, productID, mock.Anything).
@@ -57,17 +55,16 @@ func TestHandler_Update(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%d", productID), bytes.NewBuffer(bytesIn))
+		req.SetPathValue("id", strconv.Itoa(int(productID)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		h.Update(resp, req)
 		assert.Equal(t, http.StatusNotFound, resp.Code)
 	})
 
 	t.Run("internal error", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("PATCH /product/{id}", h.Update)
 
 		d.uc.EXPECT().
 			UpdateProduct(mock.Anything, productID, mock.Anything).
@@ -75,17 +72,16 @@ func TestHandler_Update(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%d", productID), bytes.NewBuffer(bytesIn))
+		req.SetPathValue("id", strconv.Itoa(int(productID)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		h.Update(resp, req)
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
 	})
 }
 
 func TestHandler_UpdateValidation(t *testing.T) {
 	h := product.New(nil)
-	mux := http.NewServeMux()
-	mux.HandleFunc("PATCH /product/{id}", h.Update)
 
 	tests := []struct {
 		name string
@@ -123,8 +119,9 @@ func TestHandler_UpdateValidation(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%d", tt.id), bytes.NewBufferString(tt.in))
+			r.SetPathValue("id", strconv.Itoa(tt.id))
 
-			mux.ServeHTTP(w, r)
+			h.Update(w, r)
 			assert.Equal(t, http.StatusBadRequest, w.Code)
 			assert.Equal(t, tt.want, strings.TrimSpace(w.Body.String()))
 		})

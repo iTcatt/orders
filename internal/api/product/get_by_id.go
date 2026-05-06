@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"iTcatt/orders/internal/api"
 	"iTcatt/orders/internal/api/product/dto"
 	"iTcatt/orders/internal/models"
 	"iTcatt/orders/internal/usecase"
+	"iTcatt/orders/pkg/api"
 )
 
 func (h *handler) GetByID(w http.ResponseWriter, r *http.Request) {

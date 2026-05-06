@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,8 +20,6 @@ func TestHandler_GetByID(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /product/{id}", h.GetByID)
 
 		id := uint32(1)
 		p := models.Product{
@@ -36,9 +35,10 @@ func TestHandler_GetByID(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
+		req.SetPathValue("id", strconv.Itoa(int(id)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		h.GetByID(resp, req)
 		assert.Equal(t, http.StatusOK, resp.Code)
 		assert.Contains(t, resp.Body.String(), `"id":1`)
 		assert.Contains(t, resp.Body.String(), `"title":"Test Product"`)
@@ -47,8 +47,6 @@ func TestHandler_GetByID(t *testing.T) {
 	t.Run("not found", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /product/{id}", h.GetByID)
 
 		id := uint32(1)
 
@@ -58,22 +56,22 @@ func TestHandler_GetByID(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
+		req.SetPathValue("id", strconv.Itoa(int(id)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		h.GetByID(resp, req)
 		assert.Equal(t, http.StatusNotFound, resp.Code)
 		assert.Contains(t, resp.Body.String(), `"message":"product not found"`)
 	})
 
 	t.Run("invalid id", func(t *testing.T) {
 		h := product.New(nil)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /product/{id}", h.GetByID)
 
 		req := httptest.NewRequest(http.MethodGet, "/product/-100", http.NoBody)
+		req.SetPathValue("id", strconv.Itoa(-100))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		h.GetByID(resp, req)
 		assert.Equal(t, http.StatusBadRequest, resp.Code)
 		assert.Contains(t, resp.Body.String(), `"message":"id must be positive"`)
 	})
@@ -81,8 +79,6 @@ func TestHandler_GetByID(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
-		mux := http.NewServeMux()
-		mux.HandleFunc("GET /product/{id}", h.GetByID)
 
 		id := uint32(1)
 
@@ -92,9 +88,10 @@ func TestHandler_GetByID(t *testing.T) {
 			Once()
 
 		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
+		req.SetPathValue("id", strconv.Itoa(int(id)))
 		resp := httptest.NewRecorder()
 
-		mux.ServeHTTP(resp, req)
+		h.GetByID(resp, req)
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
 		assert.Contains(t, resp.Body.String(), `"message":"failed to get product by id"`)
 	})
