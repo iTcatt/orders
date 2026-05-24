@@ -32,6 +32,10 @@ linters:
       exclude-functions:
         - (io.ReadCloser).Close
 
+    gosec:
+      excludes:
+        - G706 # log injection false positive: slog structured fields already prevent format injection
+
     gocritic:
       enabled-tags:
         - diagnostic

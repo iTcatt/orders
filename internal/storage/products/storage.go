@@ -37,7 +37,7 @@ func (s *storage) Get(ctx context.Context, in st.GetProductsIn) ([]models.Produc
 	return sqlp.Select[models.Product](ctx, s.db, query)
 }
 
-func (s *storage) GetByID(ctx context.Context, id uint32) (models.Product, error) {
+func (s *storage) GetByID(ctx context.Context, id string) (models.Product, error) {
 	query := s.builder.
 		Select(getFields()...).
 		From(productTable).
@@ -54,7 +54,7 @@ func (s *storage) Create(ctx context.Context, p models.Product) error {
 	return sqlp.Insert(ctx, s.db, query)
 }
 
-func (s *storage) Delete(ctx context.Context, id uint32) error {
+func (s *storage) Delete(ctx context.Context, id string) error {
 	query := s.builder.
 		Delete(productTable).
 		Where(sq.Eq{"id": id})
@@ -62,7 +62,7 @@ func (s *storage) Delete(ctx context.Context, id uint32) error {
 	return sqlp.Delete(ctx, s.db, query)
 }
 
-func (s *storage) Update(ctx context.Context, id uint32, in st.UpdateProductIn) error {
+func (s *storage) Update(ctx context.Context, id string, in st.UpdateProductIn) error {
 	query := s.builder.
 		Update(productTable).
 		SetMap(in.ToMap()).

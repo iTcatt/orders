@@ -18,14 +18,12 @@ import (
 	"iTcatt/orders/pkg/sqlp"
 )
 
-const (
-	productID = uint32(100)
-)
+const productID = "01900000-0000-7000-8000-000000000064"
 
 type deps struct {
 	productRepo *mocks.MockproductRepo
 	now         func() time.Time
-	idGenerator func() uint32
+	idGenerator func() string
 }
 
 func setupDeps(t *testing.T) *deps {
@@ -34,7 +32,7 @@ func setupDeps(t *testing.T) *deps {
 		now: func() time.Time {
 			return time.Time{}
 		},
-		idGenerator: func() uint32 {
+		idGenerator: func() string {
 			return productID
 		},
 	}
@@ -67,7 +65,7 @@ func TestUsecase_GetProducts(t *testing.T) {
 					Price:       1000,
 				},
 				{
-					ID:          productID + 1,
+					ID:          "01900000-0000-7000-8000-000000000065",
 					Title:       "second",
 					Description: "second description",
 					Price:       2000,
@@ -84,7 +82,7 @@ func TestUsecase_GetProducts(t *testing.T) {
 							Price:       1000,
 						},
 						{
-							ID:          productID + 1,
+							ID:          "01900000-0000-7000-8000-000000000065",
 							Title:       "second",
 							Description: "second description",
 							Price:       2000,

@@ -15,13 +15,13 @@ import (
 type usecase struct {
 	repo        productRepo
 	now         func() time.Time
-	idGenerator func() uint32
+	idGenerator func() string
 }
 
 func New(
 	repo productRepo,
 	now func() time.Time,
-	idGen func() uint32,
+	idGen func() string,
 ) *usecase {
 	return &usecase{
 		repo:        repo,
@@ -42,7 +42,7 @@ func (u *usecase) GetProducts(ctx context.Context, in uc.GetProductsIn) ([]model
 	return products, nil
 }
 
-func (u *usecase) GetProductByID(ctx context.Context, id uint32) (models.Product, error) {
+func (u *usecase) GetProductByID(ctx context.Context, id string) (models.Product, error) {
 	product, err := u.repo.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sqlp.ErrNotFound) {
@@ -55,23 +55,24 @@ func (u *usecase) GetProductByID(ctx context.Context, id uint32) (models.Product
 	return product, nil
 }
 
-func (u *usecase) CreateProduct(ctx context.Context, in uc.CreateProductIn) (uint32, error) {
+func (u *usecase) CreateProduct(ctx context.Context, in uc.CreateProductIn) (string, error) {
+	now := u.now()
 	product := models.Product{
 		ID:          u.idGenerator(),
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,
-		CreatedAt:   u.now(),
-		UpdatedAt:   u.now(),
+		CreatedAt:   now,
+		UpdatedAt:   now,
 	}
 	if err := u.repo.Create(ctx, product); err != nil {
-		return 0, fmt.Errorf("create product: %w", err)
+		return "", fmt.Errorf("create product: %w", err)
 	}
 
 	return product.ID, nil
 }
 
-func (u *usecase) UpdateProduct(ctx context.Context, id uint32, in uc.UpdateProductIn) error {
+func (u *usecase) UpdateProduct(ctx context.Context, id string, in uc.UpdateProductIn) error {
 	err := u.repo.Update(ctx, id, storage.UpdateProductIn{
 		Title:       in.Title,
 		Description: in.Description,
@@ -88,7 +89,7 @@ func (u *usecase) UpdateProduct(ctx context.Context, id uint32, in uc.UpdateProd
 	return nil
 }
 
-func (u *usecase) DeleteProduct(ctx context.Context, id uint32) error {
+func (u *usecase) DeleteProduct(ctx context.Context, id string) error {
 	err := u.repo.Delete(ctx, id)
 	if err != nil {
 		if errors.Is(err, sqlp.ErrNotFound) {

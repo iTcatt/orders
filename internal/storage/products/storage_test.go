@@ -70,7 +70,7 @@ func truncate(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func newProduct(id uint32) models.Product {
+func newProduct(id string) models.Product {
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	return models.Product{
 		ID:          id,
@@ -88,7 +88,7 @@ func TestStorage_Create(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("creates product successfully", func(t *testing.T) {
-		p := newProduct(1)
+		p := newProduct("01900000-0000-7000-8000-000000000001")
 		err := s.Create(ctx, p)
 		require.NoError(t, err)
 
@@ -101,7 +101,7 @@ func TestStorage_Create(t *testing.T) {
 	})
 
 	t.Run("returns ErrAlreadyExists on duplicate ID", func(t *testing.T) {
-		p := newProduct(1) // same ID as above
+		p := newProduct("01900000-0000-7000-8000-000000000001") // same ID as above
 		err := s.Create(ctx, p)
 		require.ErrorIs(t, err, sqlp.ErrAlreadyExists)
 	})
@@ -113,12 +113,12 @@ func TestStorage_GetByID(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("returns ErrNotFound for missing product", func(t *testing.T) {
-		_, err := s.GetByID(ctx, 999)
+		_, err := s.GetByID(ctx, "01900000-0000-7000-8000-999999999999")
 		require.ErrorIs(t, err, sqlp.ErrNotFound)
 	})
 
 	t.Run("returns product by ID", func(t *testing.T) {
-		p := newProduct(2)
+		p := newProduct("01900000-0000-7000-8000-000000000002")
 		require.NoError(t, s.Create(ctx, p))
 
 		got, err := s.GetByID(ctx, p.ID)
@@ -133,8 +133,15 @@ func TestStorage_Get(t *testing.T) {
 	s := products.New(testDB)
 	ctx := context.Background()
 
-	for i := uint32(1); i <= 5; i++ {
-		p := newProduct(i)
+	ids := []string{
+		"01900000-0000-7000-8000-000000000011",
+		"01900000-0000-7000-8000-000000000012",
+		"01900000-0000-7000-8000-000000000013",
+		"01900000-0000-7000-8000-000000000014",
+		"01900000-0000-7000-8000-000000000015",
+	}
+	for _, id := range ids {
+		p := newProduct(id)
 		p.Title = "Product"
 		require.NoError(t, s.Create(ctx, p))
 	}
@@ -171,12 +178,12 @@ func TestStorage_Update(t *testing.T) {
 
 	t.Run("returns ErrNotFound for missing product", func(t *testing.T) {
 		title := "New Title"
-		err := s.Update(ctx, 999, st.UpdateProductIn{Title: &title})
+		err := s.Update(ctx, "01900000-0000-7000-8000-999999999999", st.UpdateProductIn{Title: &title})
 		require.ErrorIs(t, err, sqlp.ErrNotFound)
 	})
 
 	t.Run("updates title", func(t *testing.T) {
-		p := newProduct(10)
+		p := newProduct("01900000-0000-7000-8000-000000000010")
 		require.NoError(t, s.Create(ctx, p))
 
 		newTitle := "Updated Title"
@@ -191,7 +198,7 @@ func TestStorage_Update(t *testing.T) {
 	})
 
 	t.Run("updates multiple fields", func(t *testing.T) {
-		p := newProduct(11)
+		p := newProduct("01900000-0000-7000-8000-000000000011")
 		require.NoError(t, s.Create(ctx, p))
 
 		newTitle := "Multi Update"
@@ -218,12 +225,12 @@ func TestStorage_Delete(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("returns ErrNotFound for missing product", func(t *testing.T) {
-		err := s.Delete(ctx, 999)
+		err := s.Delete(ctx, "01900000-0000-7000-8000-999999999999")
 		require.ErrorIs(t, err, sqlp.ErrNotFound)
 	})
 
 	t.Run("deletes existing product", func(t *testing.T) {
-		p := newProduct(20)
+		p := newProduct("01900000-0000-7000-8000-000000000020")
 		require.NoError(t, s.Create(ctx, p))
 
 		err := s.Delete(ctx, p.ID)

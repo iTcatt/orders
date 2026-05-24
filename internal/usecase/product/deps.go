@@ -9,8 +9,8 @@ import (
 
 type productRepo interface {
 	Get(ctx context.Context, in storage.GetProductsIn) ([]models.Product, error)
-	GetByID(ctx context.Context, id uint32) (models.Product, error)
+	GetByID(ctx context.Context, id string) (models.Product, error)
 	Create(ctx context.Context, product models.Product) error
-	Update(ctx context.Context, id uint32, in storage.UpdateProductIn) error
-	Delete(ctx context.Context, id uint32) error
+	Update(ctx context.Context, id string, in storage.UpdateProductIn) error
+	Delete(ctx context.Context, id string) error
 }

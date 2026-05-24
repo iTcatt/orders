@@ -1,5 +1,5 @@
 ### Create product
-POST /product
+POST {{host}}/product/
 Content-Type: application/json
 
 {
@@ -15,7 +15,8 @@ Content-Type: application/json
 %}
 
 ### Get product
-GET /product/{{product_id}}
+GET {{host}}/product/{{product_id}}
+
 > {%
     client.assert(response.status === 200)
     client.assert(response.body.id === client.global.get("product_id"))
@@ -25,7 +26,7 @@ GET /product/{{product_id}}
 %}
 
 ### Patch product
-PATCH /product/{{product_id}}
+PATCH {{host}}/product/{{product_id}}
 Content-Type: application/json
 
 {
@@ -39,7 +40,8 @@ Content-Type: application/json
 %}
 
 ### Get updated product
-GET /product/{{product_id}}
+GET {{host}}/product/{{product_id}}
+
 > {%
     client.assert(response.status === 200)
     client.assert(response.body.id === client.global.get("product_id"))
@@ -49,7 +51,8 @@ GET /product/{{product_id}}
 %}
 
 ### Delete product
-DELETE /product/{{product_id}}
+DELETE {{host}}/product/{{product_id}}
+
 > {%
     client.assert(response.status === 204)
 %}

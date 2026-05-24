@@ -20,8 +20,8 @@ func TestHandler_Get(t *testing.T) {
 		h := product.New(d.uc)
 
 		products := []models.Product{
-			{ID: 1, Title: "P1", Description: "Desc1", Price: 100},
-			{ID: 2, Title: "P2", Description: "Desc2", Price: 200},
+			{ID: "01900000-0000-7000-8000-000000000001", Title: "P1", Description: "Desc1", Price: 100},
+			{ID: "01900000-0000-7000-8000-000000000002", Title: "P2", Description: "Desc2", Price: 200},
 		}
 
 		d.uc.EXPECT().
@@ -34,8 +34,8 @@ func TestHandler_Get(t *testing.T) {
 
 		h.Get(resp, req)
 		assert.Equal(t, http.StatusOK, resp.Code)
-		assert.Contains(t, resp.Body.String(), `"id":1`)
-		assert.Contains(t, resp.Body.String(), `"id":2`)
+		assert.Contains(t, resp.Body.String(), `"id":"01900000-0000-7000-8000-000000000001"`)
+		assert.Contains(t, resp.Body.String(), `"id":"01900000-0000-7000-8000-000000000002"`)
 	})
 
 	t.Run("empty list", func(t *testing.T) {

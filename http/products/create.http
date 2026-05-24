@@ -1,4 +1,4 @@
-POST /product
+POST {{host}}/product/
 Content-Type: application/json
 
 {

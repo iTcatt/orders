@@ -123,7 +123,7 @@
           "datasource": {
             "uid": "Prometheus"
           },
-          "expr": "sum(rate(http_request_duration_seconds_count[1m]))",
+          "expr": "sum(rate(http_server_request_duration_seconds_count[1m]))",
           "interval": "",
           "legendFormat": "Total RPS",
           "refId": "A"
@@ -132,7 +132,7 @@
           "datasource": {
             "uid": "Prometheus"
           },
-          "expr": "sum(rate(http_request_duration_seconds_count{status_code=~\"2..\"}[1m]))",
+          "expr": "sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"2..\"}[1m]))",
           "interval": "",
           "legendFormat": "2xx",
           "refId": "B"
@@ -141,7 +141,7 @@
           "datasource": {
             "uid": "Prometheus"
           },
-          "expr": "sum(rate(http_request_duration_seconds_count{status_code=~\"5..\"}[1m]))",
+          "expr": "sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~\"5..\"}[1m]))",
           "interval": "",
           "legendFormat": "5xx",
           "refId": "C"
@@ -241,7 +241,7 @@
           "datasource": {
             "uid": "Prometheus"
           },
-          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le))",
           "interval": "",
           "legendFormat": "p50",
           "refId": "A"
@@ -250,7 +250,7 @@
           "datasource": {
             "uid": "Prometheus"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le))",
           "interval": "",
           "legendFormat": "p95",
           "refId": "B"
@@ -259,7 +259,7 @@
           "datasource": {
             "uid": "Prometheus"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le))",
           "interval": "",
           "legendFormat": "p99",
           "refId": "C"
@@ -359,7 +359,7 @@
           "datasource": {
             "uid": "Prometheus"
           },
-          "expr": "http_concurrent_requests",
+          "expr": "http_server_active_requests",
           "interval": "",
           "legendFormat": "Current concurrent",
           "refId": "A"
@@ -368,7 +368,7 @@
           "datasource": {
             "uid": "Prometheus"
           },
-          "expr": "avg_over_time(http_concurrent_requests[5m])",
+          "expr": "avg_over_time(http_server_active_requests[5m])",
           "interval": "",
           "legendFormat": "Avg (5m)",
           "refId": "B"
@@ -479,8 +479,8 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(http_request_duration_seconds_count{instance=~\"$instance\", endpoint=~\"$endpoint\"}[5m])) by (endpoint, status)",
-          "legendFormat": "{{endpoint}} - {{status}}",
+          "expr": "sum(rate(http_server_request_duration_seconds_count{instance=~\"$instance\", http_route=~\"$endpoint\"}[5m])) by (http_route, http_response_status_code)",
+          "legendFormat": "{{http_route}} - {{http_response_status_code}}",
           "range": true,
           "refId": "A"
         }
@@ -574,8 +574,8 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "topk(10, sum(rate(http_request_duration_seconds_count{instance=~\"$instance\", endpoint=~\"$endpoint\"}[5m])) by (endpoint))",
-          "legendFormat": "{{endpoint}}",
+          "expr": "topk(10, sum(rate(http_server_request_duration_seconds_count{instance=~\"$instance\", http_route=~\"$endpoint\"}[5m])) by (http_route))",
+          "legendFormat": "{{http_route}}",
           "refId": "A"
         }
       ],
@@ -1221,14 +1221,14 @@
           "text": "All",
           "value": ["$__all"]
         },
-        "definition": "label_values(http_request_duration_seconds_count{instance=~\"$instance\"}, endpoint)",
+        "definition": "label_values(http_server_request_duration_seconds_count{instance=~\"$instance\"}, http_route)",
         "includeAll": true,
         "label": "Endpoint",
         "multi": true,
         "name": "endpoint",
         "options": [],
         "query": {
-          "query": "label_values(http_request_duration_seconds_count{instance=~\"$instance\"}, endpoint)",
+          "query": "label_values(http_server_request_duration_seconds_count{instance=~\"$instance\"}, http_route)",
           "refId": "Prometheus-endpoint-Variable-Query"
         },
         "refresh": 2,

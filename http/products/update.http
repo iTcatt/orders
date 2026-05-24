@@ -1,4 +1,4 @@
-PATCH /product/{{product_id}}
+PATCH {{host}}/product/{{product_id}}
 Content-Type: application/json
 
 {

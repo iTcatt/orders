@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -20,7 +19,6 @@ import (
 )
 
 func TestHandler_Update(t *testing.T) {
-	productID := uint32(1)
 	in := dto.UpdateProductIn{
 		Title:       new("Updated Product"),
 		Description: new("Updated Description"),
@@ -37,8 +35,8 @@ func TestHandler_Update(t *testing.T) {
 			Return(nil).
 			Once()
 
-		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%d", productID), bytes.NewBuffer(bytesIn))
-		req.SetPathValue("id", strconv.Itoa(int(productID)))
+		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%s", productID), bytes.NewBuffer(bytesIn))
+		req.SetPathValue("id", productID)
 		resp := httptest.NewRecorder()
 
 		h.Update(resp, req)
@@ -54,8 +52,8 @@ func TestHandler_Update(t *testing.T) {
 			Return(usecase.ErrProductNotFound).
 			Once()
 
-		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%d", productID), bytes.NewBuffer(bytesIn))
-		req.SetPathValue("id", strconv.Itoa(int(productID)))
+		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%s", productID), bytes.NewBuffer(bytesIn))
+		req.SetPathValue("id", productID)
 		resp := httptest.NewRecorder()
 
 		h.Update(resp, req)
@@ -71,8 +69,8 @@ func TestHandler_Update(t *testing.T) {
 			Return(errors.New("some error")).
 			Once()
 
-		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%d", productID), bytes.NewBuffer(bytesIn))
-		req.SetPathValue("id", strconv.Itoa(int(productID)))
+		req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%s", productID), bytes.NewBuffer(bytesIn))
+		req.SetPathValue("id", productID)
 		resp := httptest.NewRecorder()
 
 		h.Update(resp, req)
@@ -86,30 +84,30 @@ func TestHandler_UpdateValidation(t *testing.T) {
 	tests := []struct {
 		name string
 		in   string
-		id   int
+		id   string
 		want string
 	}{
 		{
 			name: "negative price",
 			in:   `{"title": "Test Product", "description": "Test Description", "price": -100}`,
-			id:   1,
+			id:   productID,
 			want: `{"message":"invalid input: json: cannot unmarshal number -100 into Go struct field UpdateProductIn.price of type uint32","code":400}`,
 		},
 		{
 			name: "invalid JSON",
-			id:   1,
+			id:   productID,
 			in:   `not json`,
 			want: `{"message":"invalid input: invalid character 'o' in literal null (expecting 'u')","code":400}`,
 		},
 		{
 			name: "invalid id",
-			id:   0,
+			id:   "not-a-uuid",
 			in:   `{"title": "Test Product", "description": "Test Description", "price": 100}`,
-			want: `{"message":"id must be positive","code":400}`,
+			want: `{"message":"id must be a valid UUID v7","code":400}`,
 		},
 		{
 			name: "empty payload",
-			id:   1,
+			id:   productID,
 			in:   `{}`,
 			want: `{"message":"at least one field must be provided","code":400}`,
 		},
@@ -118,8 +116,8 @@ func TestHandler_UpdateValidation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%d", tt.id), bytes.NewBufferString(tt.in))
-			r.SetPathValue("id", strconv.Itoa(tt.id))
+			r := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/product/%s", tt.id), bytes.NewBufferString(tt.in))
+			r.SetPathValue("id", tt.id)
 
 			h.Update(w, r)
 			assert.Equal(t, http.StatusBadRequest, w.Code)

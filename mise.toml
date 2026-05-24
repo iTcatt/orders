@@ -3,6 +3,7 @@ _.file = '.env'
 APP_ENV = "dev"
 DB_USER = "postgres"
 DB_NAME = "master"
+JAVA_HOME = "/Library/Java/JavaVirtualMachines/temurin-24.jdk/Contents/Home"
 
 [tools]
 "aqua:tsenart/vegeta" = "latest"
@@ -32,8 +33,8 @@ run = "goose postgres $DB_URL -dir migrations/postgres/master up"
 [tasks.down]
 run = "goose postgres $DB_URL -dir migrations/postgres/master down"
 
-[tasks.install_httpyac]
-run = "npm install -g httpyac"
+[tasks.install_ijhttp]
+run = "brew install ijhttp"
 
 [tasks.httptest]
-run = "httpyac http/products/test.http -e dev -a"
+run = "ijhttp --env-file http/http-client.env.json -e dev http/products/test.http"

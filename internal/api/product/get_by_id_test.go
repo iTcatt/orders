@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,31 +15,32 @@ import (
 	"iTcatt/orders/internal/usecase"
 )
 
+const testID = "01900000-0000-7000-8000-000000000001"
+
 func TestHandler_GetByID(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
 
-		id := uint32(1)
 		p := models.Product{
-			ID:          id,
+			ID:          testID,
 			Title:       "Test Product",
 			Description: "Test Description",
 			Price:       100,
 		}
 
 		d.uc.EXPECT().
-			GetProductByID(mock.Anything, id).
+			GetProductByID(mock.Anything, testID).
 			Return(p, nil).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
-		req.SetPathValue("id", strconv.Itoa(int(id)))
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%s", testID), http.NoBody)
+		req.SetPathValue("id", testID)
 		resp := httptest.NewRecorder()
 
 		h.GetByID(resp, req)
 		assert.Equal(t, http.StatusOK, resp.Code)
-		assert.Contains(t, resp.Body.String(), `"id":1`)
+		assert.Contains(t, resp.Body.String(), `"id":"01900000-0000-7000-8000-000000000001"`)
 		assert.Contains(t, resp.Body.String(), `"title":"Test Product"`)
 	})
 
@@ -48,15 +48,13 @@ func TestHandler_GetByID(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
 
-		id := uint32(1)
-
 		d.uc.EXPECT().
-			GetProductByID(mock.Anything, id).
+			GetProductByID(mock.Anything, testID).
 			Return(models.Product{}, usecase.ErrProductNotFound).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
-		req.SetPathValue("id", strconv.Itoa(int(id)))
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%s", testID), http.NoBody)
+		req.SetPathValue("id", testID)
 		resp := httptest.NewRecorder()
 
 		h.GetByID(resp, req)
@@ -67,28 +65,26 @@ func TestHandler_GetByID(t *testing.T) {
 	t.Run("invalid id", func(t *testing.T) {
 		h := product.New(nil)
 
-		req := httptest.NewRequest(http.MethodGet, "/product/-100", http.NoBody)
-		req.SetPathValue("id", strconv.Itoa(-100))
+		req := httptest.NewRequest(http.MethodGet, "/product/not-a-uuid", http.NoBody)
+		req.SetPathValue("id", "not-a-uuid")
 		resp := httptest.NewRecorder()
 
 		h.GetByID(resp, req)
 		assert.Equal(t, http.StatusBadRequest, resp.Code)
-		assert.Contains(t, resp.Body.String(), `"message":"id must be positive"`)
+		assert.Contains(t, resp.Body.String(), `"message":"id must be a valid UUID v7"`)
 	})
 
 	t.Run("internal error", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
 
-		id := uint32(1)
-
 		d.uc.EXPECT().
-			GetProductByID(mock.Anything, id).
+			GetProductByID(mock.Anything, testID).
 			Return(models.Product{}, errors.New("some error")).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%d", id), http.NoBody)
-		req.SetPathValue("id", strconv.Itoa(int(id)))
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/product/%s", testID), http.NoBody)
+		req.SetPathValue("id", testID)
 		resp := httptest.NewRecorder()
 
 		h.GetByID(resp, req)

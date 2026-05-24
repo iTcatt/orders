@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"math/rand/v2"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	"github.com/golang-cz/devslog"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 
 	"iTcatt/orders/internal/api"
@@ -51,7 +51,10 @@ func run() error {
 	}()
 
 	productDB := products.New(db)
-	productUC := productUsecase.New(productDB, time.Now, rand.Uint32)
+
+	productUC := productUsecase.New(productDB, time.Now, func() string {
+		return uuid.Must(uuid.NewV7()).String()
+	})
 	productHandler := apiProduct.New(productUC)
 
 	router := api.NewRouter(productHandler)

@@ -40,22 +40,22 @@ func (_m *MockproductUsecase) EXPECT() *MockproductUsecase_Expecter {
 }
 
 // CreateProduct provides a mock function for the type MockproductUsecase
-func (_mock *MockproductUsecase) CreateProduct(ctx context.Context, in usecase.CreateProductIn) (uint32, error) {
+func (_mock *MockproductUsecase) CreateProduct(ctx context.Context, in usecase.CreateProductIn) (string, error) {
 	ret := _mock.Called(ctx, in)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateProduct")
 	}
 
-	var r0 uint32
+	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateProductIn) (uint32, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateProductIn) (string, error)); ok {
 		return returnFunc(ctx, in)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateProductIn) uint32); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, usecase.CreateProductIn) string); ok {
 		r0 = returnFunc(ctx, in)
 	} else {
-		r0 = ret.Get(0).(uint32)
+		r0 = ret.Get(0).(string)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, usecase.CreateProductIn) error); ok {
 		r1 = returnFunc(ctx, in)
@@ -95,18 +95,18 @@ func (_c *MockproductUsecase_CreateProduct_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MockproductUsecase_CreateProduct_Call) Return(v uint32, err error) *MockproductUsecase_CreateProduct_Call {
-	_c.Call.Return(v, err)
+func (_c *MockproductUsecase_CreateProduct_Call) Return(s string, err error) *MockproductUsecase_CreateProduct_Call {
+	_c.Call.Return(s, err)
 	return _c
 }
 
-func (_c *MockproductUsecase_CreateProduct_Call) RunAndReturn(run func(ctx context.Context, in usecase.CreateProductIn) (uint32, error)) *MockproductUsecase_CreateProduct_Call {
+func (_c *MockproductUsecase_CreateProduct_Call) RunAndReturn(run func(ctx context.Context, in usecase.CreateProductIn) (string, error)) *MockproductUsecase_CreateProduct_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // DeleteProduct provides a mock function for the type MockproductUsecase
-func (_mock *MockproductUsecase) DeleteProduct(ctx context.Context, id uint32) error {
+func (_mock *MockproductUsecase) DeleteProduct(ctx context.Context, id string) error {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -114,7 +114,7 @@ func (_mock *MockproductUsecase) DeleteProduct(ctx context.Context, id uint32) e
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint32) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Error(0)
@@ -129,20 +129,20 @@ type MockproductUsecase_DeleteProduct_Call struct {
 
 // DeleteProduct is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uint32
+//   - id string
 func (_e *MockproductUsecase_Expecter) DeleteProduct(ctx interface{}, id interface{}) *MockproductUsecase_DeleteProduct_Call {
 	return &MockproductUsecase_DeleteProduct_Call{Call: _e.mock.On("DeleteProduct", ctx, id)}
 }
 
-func (_c *MockproductUsecase_DeleteProduct_Call) Run(run func(ctx context.Context, id uint32)) *MockproductUsecase_DeleteProduct_Call {
+func (_c *MockproductUsecase_DeleteProduct_Call) Run(run func(ctx context.Context, id string)) *MockproductUsecase_DeleteProduct_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uint32
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uint32)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -157,13 +157,13 @@ func (_c *MockproductUsecase_DeleteProduct_Call) Return(err error) *MockproductU
 	return _c
 }
 
-func (_c *MockproductUsecase_DeleteProduct_Call) RunAndReturn(run func(ctx context.Context, id uint32) error) *MockproductUsecase_DeleteProduct_Call {
+func (_c *MockproductUsecase_DeleteProduct_Call) RunAndReturn(run func(ctx context.Context, id string) error) *MockproductUsecase_DeleteProduct_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetProductByID provides a mock function for the type MockproductUsecase
-func (_mock *MockproductUsecase) GetProductByID(ctx context.Context, id uint32) (models.Product, error) {
+func (_mock *MockproductUsecase) GetProductByID(ctx context.Context, id string) (models.Product, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -172,15 +172,15 @@ func (_mock *MockproductUsecase) GetProductByID(ctx context.Context, id uint32) 
 
 	var r0 models.Product
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint32) (models.Product, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (models.Product, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint32) models.Product); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) models.Product); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Get(0).(models.Product)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uint32) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -195,20 +195,20 @@ type MockproductUsecase_GetProductByID_Call struct {
 
 // GetProductByID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uint32
+//   - id string
 func (_e *MockproductUsecase_Expecter) GetProductByID(ctx interface{}, id interface{}) *MockproductUsecase_GetProductByID_Call {
 	return &MockproductUsecase_GetProductByID_Call{Call: _e.mock.On("GetProductByID", ctx, id)}
 }
 
-func (_c *MockproductUsecase_GetProductByID_Call) Run(run func(ctx context.Context, id uint32)) *MockproductUsecase_GetProductByID_Call {
+func (_c *MockproductUsecase_GetProductByID_Call) Run(run func(ctx context.Context, id string)) *MockproductUsecase_GetProductByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uint32
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uint32)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -223,7 +223,7 @@ func (_c *MockproductUsecase_GetProductByID_Call) Return(product models.Product,
 	return _c
 }
 
-func (_c *MockproductUsecase_GetProductByID_Call) RunAndReturn(run func(ctx context.Context, id uint32) (models.Product, error)) *MockproductUsecase_GetProductByID_Call {
+func (_c *MockproductUsecase_GetProductByID_Call) RunAndReturn(run func(ctx context.Context, id string) (models.Product, error)) *MockproductUsecase_GetProductByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -297,7 +297,7 @@ func (_c *MockproductUsecase_GetProducts_Call) RunAndReturn(run func(ctx context
 }
 
 // UpdateProduct provides a mock function for the type MockproductUsecase
-func (_mock *MockproductUsecase) UpdateProduct(ctx context.Context, id uint32, in usecase.UpdateProductIn) error {
+func (_mock *MockproductUsecase) UpdateProduct(ctx context.Context, id string, in usecase.UpdateProductIn) error {
 	ret := _mock.Called(ctx, id, in)
 
 	if len(ret) == 0 {
@@ -305,7 +305,7 @@ func (_mock *MockproductUsecase) UpdateProduct(ctx context.Context, id uint32, i
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint32, usecase.UpdateProductIn) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, usecase.UpdateProductIn) error); ok {
 		r0 = returnFunc(ctx, id, in)
 	} else {
 		r0 = ret.Error(0)
@@ -320,21 +320,21 @@ type MockproductUsecase_UpdateProduct_Call struct {
 
 // UpdateProduct is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uint32
+//   - id string
 //   - in usecase.UpdateProductIn
 func (_e *MockproductUsecase_Expecter) UpdateProduct(ctx interface{}, id interface{}, in interface{}) *MockproductUsecase_UpdateProduct_Call {
 	return &MockproductUsecase_UpdateProduct_Call{Call: _e.mock.On("UpdateProduct", ctx, id, in)}
 }
 
-func (_c *MockproductUsecase_UpdateProduct_Call) Run(run func(ctx context.Context, id uint32, in usecase.UpdateProductIn)) *MockproductUsecase_UpdateProduct_Call {
+func (_c *MockproductUsecase_UpdateProduct_Call) Run(run func(ctx context.Context, id string, in usecase.UpdateProductIn)) *MockproductUsecase_UpdateProduct_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uint32
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uint32)
+			arg1 = args[1].(string)
 		}
 		var arg2 usecase.UpdateProductIn
 		if args[2] != nil {
@@ -354,7 +354,7 @@ func (_c *MockproductUsecase_UpdateProduct_Call) Return(err error) *MockproductU
 	return _c
 }
 
-func (_c *MockproductUsecase_UpdateProduct_Call) RunAndReturn(run func(ctx context.Context, id uint32, in usecase.UpdateProductIn) error) *MockproductUsecase_UpdateProduct_Call {
+func (_c *MockproductUsecase_UpdateProduct_Call) RunAndReturn(run func(ctx context.Context, id string, in usecase.UpdateProductIn) error) *MockproductUsecase_UpdateProduct_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -1,4 +1,4 @@
-GET /product/{{product_id}}
+GET {{host}}/product/{{product_id}}
 
 > {%
     client.assert(response.status === 200)

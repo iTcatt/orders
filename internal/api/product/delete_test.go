@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +14,7 @@ import (
 	"iTcatt/orders/internal/usecase"
 )
 
-const productID = uint32(1)
+const productID = "01900000-0000-7000-8000-000000000001"
 
 func TestHandler_Delete(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
@@ -27,8 +26,8 @@ func TestHandler_Delete(t *testing.T) {
 			Return(nil).
 			Once()
 
-		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
-		req.SetPathValue("id", strconv.Itoa(int(productID)))
+		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%s", productID), http.NoBody)
+		req.SetPathValue("id", productID)
 		resp := httptest.NewRecorder()
 
 		handler.Delete(resp, req)
@@ -44,8 +43,8 @@ func TestHandler_Delete(t *testing.T) {
 			Return(usecase.ErrProductNotFound).
 			Once()
 
-		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
-		req.SetPathValue("id", strconv.Itoa(int(productID)))
+		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%s", productID), http.NoBody)
+		req.SetPathValue("id", productID)
 		resp := httptest.NewRecorder()
 
 		handler.Delete(resp, req)
@@ -62,8 +61,8 @@ func TestHandler_Delete(t *testing.T) {
 			Return(errors.New("some error")).
 			Once()
 
-		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", productID), http.NoBody)
-		req.SetPathValue("id", strconv.Itoa(int(productID)))
+		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%s", productID), http.NoBody)
+		req.SetPathValue("id", productID)
 		resp := httptest.NewRecorder()
 
 		handler.Delete(resp, req)
@@ -74,12 +73,12 @@ func TestHandler_Delete(t *testing.T) {
 	t.Run("validation error", func(t *testing.T) {
 		handler := product.New(nil)
 
-		req := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/product/%d", -100), http.NoBody)
-		req.SetPathValue("id", strconv.Itoa(-100))
+		req := httptest.NewRequest(http.MethodDelete, "/product/not-a-uuid", http.NoBody)
+		req.SetPathValue("id", "not-a-uuid")
 		resp := httptest.NewRecorder()
 
 		handler.Delete(resp, req)
 		assert.Equal(t, http.StatusBadRequest, resp.Code)
-		assert.JSONEq(t, `{"message":"id must be positive","code":400}`, resp.Body.String())
+		assert.JSONEq(t, `{"message":"id must be a valid UUID v7","code":400}`, resp.Body.String())
 	})
 }

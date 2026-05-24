@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,7 +26,7 @@ func TestHandler_Create(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		d := setupDeps(t)
 		h := product.New(d.uc)
-		id := uint32(42)
+		id := "01900000-0000-7000-8000-00000000002a"
 
 		d.uc.EXPECT().
 			CreateProduct(mock.Anything, mock.Anything).
@@ -39,7 +38,7 @@ func TestHandler_Create(t *testing.T) {
 
 		h.Create(w, r)
 		assert.Equal(t, http.StatusCreated, w.Code)
-		assert.Equal(t, `{"id":42}`, strings.TrimSpace(w.Body.String()))
+		assert.JSONEq(t, `{"id":"01900000-0000-7000-8000-00000000002a"}`, w.Body.String())
 	})
 
 	t.Run("usecase error", func(t *testing.T) {
@@ -48,7 +47,7 @@ func TestHandler_Create(t *testing.T) {
 
 		d.uc.EXPECT().
 			CreateProduct(mock.Anything, mock.Anything).
-			Return(0, errors.New("some error")).
+			Return("", errors.New("some error")).
 			Once()
 
 		w := httptest.NewRecorder()
@@ -56,7 +55,7 @@ func TestHandler_Create(t *testing.T) {
 
 		h.Create(w, r)
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		assert.Contains(t, `{"message":"failed to create product","code":500}`, strings.TrimSpace(w.Body.String()))
+		assert.JSONEq(t, `{"message":"failed to create product","code":500}`, w.Body.String())
 	})
 }
 
@@ -97,7 +96,7 @@ func TestHandler_CreateValidation(t *testing.T) {
 
 			h.Create(w, r)
 			assert.Equal(t, http.StatusBadRequest, w.Code)
-			assert.Equal(t, tt.want, strings.TrimSpace(w.Body.String()))
+			assert.JSONEq(t, tt.want, w.Body.String())
 		})
 	}
 }

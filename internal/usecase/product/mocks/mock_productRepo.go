@@ -97,7 +97,7 @@ func (_c *MockproductRepo_Create_Call) RunAndReturn(run func(ctx context.Context
 }
 
 // Delete provides a mock function for the type MockproductRepo
-func (_mock *MockproductRepo) Delete(ctx context.Context, id uint32) error {
+func (_mock *MockproductRepo) Delete(ctx context.Context, id string) error {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -105,7 +105,7 @@ func (_mock *MockproductRepo) Delete(ctx context.Context, id uint32) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint32) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Error(0)
@@ -120,20 +120,20 @@ type MockproductRepo_Delete_Call struct {
 
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uint32
+//   - id string
 func (_e *MockproductRepo_Expecter) Delete(ctx interface{}, id interface{}) *MockproductRepo_Delete_Call {
 	return &MockproductRepo_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
-func (_c *MockproductRepo_Delete_Call) Run(run func(ctx context.Context, id uint32)) *MockproductRepo_Delete_Call {
+func (_c *MockproductRepo_Delete_Call) Run(run func(ctx context.Context, id string)) *MockproductRepo_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uint32
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uint32)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -148,7 +148,7 @@ func (_c *MockproductRepo_Delete_Call) Return(err error) *MockproductRepo_Delete
 	return _c
 }
 
-func (_c *MockproductRepo_Delete_Call) RunAndReturn(run func(ctx context.Context, id uint32) error) *MockproductRepo_Delete_Call {
+func (_c *MockproductRepo_Delete_Call) RunAndReturn(run func(ctx context.Context, id string) error) *MockproductRepo_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -222,7 +222,7 @@ func (_c *MockproductRepo_Get_Call) RunAndReturn(run func(ctx context.Context, i
 }
 
 // GetByID provides a mock function for the type MockproductRepo
-func (_mock *MockproductRepo) GetByID(ctx context.Context, id uint32) (models.Product, error) {
+func (_mock *MockproductRepo) GetByID(ctx context.Context, id string) (models.Product, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
@@ -231,15 +231,15 @@ func (_mock *MockproductRepo) GetByID(ctx context.Context, id uint32) (models.Pr
 
 	var r0 models.Product
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint32) (models.Product, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (models.Product, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint32) models.Product); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) models.Product); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Get(0).(models.Product)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, uint32) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, id)
 	} else {
 		r1 = ret.Error(1)
@@ -254,20 +254,20 @@ type MockproductRepo_GetByID_Call struct {
 
 // GetByID is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uint32
+//   - id string
 func (_e *MockproductRepo_Expecter) GetByID(ctx interface{}, id interface{}) *MockproductRepo_GetByID_Call {
 	return &MockproductRepo_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
 }
 
-func (_c *MockproductRepo_GetByID_Call) Run(run func(ctx context.Context, id uint32)) *MockproductRepo_GetByID_Call {
+func (_c *MockproductRepo_GetByID_Call) Run(run func(ctx context.Context, id string)) *MockproductRepo_GetByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uint32
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uint32)
+			arg1 = args[1].(string)
 		}
 		run(
 			arg0,
@@ -282,13 +282,13 @@ func (_c *MockproductRepo_GetByID_Call) Return(product models.Product, err error
 	return _c
 }
 
-func (_c *MockproductRepo_GetByID_Call) RunAndReturn(run func(ctx context.Context, id uint32) (models.Product, error)) *MockproductRepo_GetByID_Call {
+func (_c *MockproductRepo_GetByID_Call) RunAndReturn(run func(ctx context.Context, id string) (models.Product, error)) *MockproductRepo_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function for the type MockproductRepo
-func (_mock *MockproductRepo) Update(ctx context.Context, id uint32, in storage.UpdateProductIn) error {
+func (_mock *MockproductRepo) Update(ctx context.Context, id string, in storage.UpdateProductIn) error {
 	ret := _mock.Called(ctx, id, in)
 
 	if len(ret) == 0 {
@@ -296,7 +296,7 @@ func (_mock *MockproductRepo) Update(ctx context.Context, id uint32, in storage.
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uint32, storage.UpdateProductIn) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, storage.UpdateProductIn) error); ok {
 		r0 = returnFunc(ctx, id, in)
 	} else {
 		r0 = ret.Error(0)
@@ -311,21 +311,21 @@ type MockproductRepo_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - id uint32
+//   - id string
 //   - in storage.UpdateProductIn
 func (_e *MockproductRepo_Expecter) Update(ctx interface{}, id interface{}, in interface{}) *MockproductRepo_Update_Call {
 	return &MockproductRepo_Update_Call{Call: _e.mock.On("Update", ctx, id, in)}
 }
 
-func (_c *MockproductRepo_Update_Call) Run(run func(ctx context.Context, id uint32, in storage.UpdateProductIn)) *MockproductRepo_Update_Call {
+func (_c *MockproductRepo_Update_Call) Run(run func(ctx context.Context, id string, in storage.UpdateProductIn)) *MockproductRepo_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 uint32
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(uint32)
+			arg1 = args[1].(string)
 		}
 		var arg2 storage.UpdateProductIn
 		if args[2] != nil {
@@ -345,7 +345,7 @@ func (_c *MockproductRepo_Update_Call) Return(err error) *MockproductRepo_Update
 	return _c
 }
 
-func (_c *MockproductRepo_Update_Call) RunAndReturn(run func(ctx context.Context, id uint32, in storage.UpdateProductIn) error) *MockproductRepo_Update_Call {
+func (_c *MockproductRepo_Update_Call) RunAndReturn(run func(ctx context.Context, id string, in storage.UpdateProductIn) error) *MockproductRepo_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

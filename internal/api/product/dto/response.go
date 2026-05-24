@@ -3,7 +3,7 @@ package dto
 import "time"
 
 type Product struct {
-	ID          uint32    `json:"id"`
+	ID          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Price       uint32    `json:"price"`
@@ -12,5 +12,5 @@ type Product struct {
 }
 
 type CreateProductOut struct {
-	ID uint32 `json:"id"`
+	ID string `json:"id"`
 }
