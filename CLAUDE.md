@@ -7,15 +7,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This project uses [mise](https://mise.jdx.dev/) to manage tools and tasks.
 
 ```bash
-mise install          # Install all dev tools (Go, golangci-lint, mockery, Goose)
-mise run start        # Run the service
+mise install          # Install all dev tools (Go, golangci-lint, mockery, Goose, vegeta)
+mise run start        # Run the service (cmd/service/main.go)
 mise run test         # Run all tests with -v
-mise run fmt          # Format code with gofumpt
+mise run fmt          # Format code with golangci-lint fmt
 mise run lint         # Run golangci-lint
 mise run check        # fmt + lint
 mise run migrate      # Apply Goose migrations (up)
 mise run down         # Rollback migrations (down)
-mise run httptest     # Run HTTP integration tests via httpyac
+mise run httptest     # Run HTTP integration tests via ijhttp
 ```
 
 To run a single test:
@@ -34,7 +34,7 @@ Clean three-layer architecture:
 
 ```
 HTTP Handlers (internal/api/)
-       ↓  interfaces via internal/api/deps.go
+       ↓  interfaces via internal/api/product/deps.go
 Use Cases (internal/usecase/)
        ↓  interfaces via internal/usecase/product/deps.go
 Storage (internal/storage/)
@@ -43,19 +43,21 @@ PostgreSQL (internal/infra/postgres/)
 ```
 
 **Layer responsibilities:**
-- `internal/api/product/` — Chi router handlers, request/response DTOs, input validation (go-playground/validator). Middleware in `api/middleware.go` adds structured logging (slog + go-chi/httplog) and Prometheus metrics.
-- `internal/usecase/product/` — Business logic. Generates product IDs (random uint32). Converts storage errors to typed use case errors (`internal/usecase/errors.go`).
+- `internal/api/product/` — Standard `net/http` handlers, request/response DTOs, input validation (go-playground/validator). Custom `Router` in `api/router.go` wraps `http.ServeMux`. Middleware stack in `api/middleware.go`: recovery, requestID, CORS, structured logging (slog + devslog), Prometheus metrics.
+- `internal/usecase/product/` — Business logic. Generates product IDs as UUID v7 strings. Converts storage errors to typed use case errors (`internal/usecase/errors.go`).
 - `internal/storage/products/` — PostgreSQL queries built with Masterminds/squirrel. Generic helpers live in `pkg/sqlp/sqlp.go`.
-- `internal/infra/postgres/` — Connection pool setup (40 max open, 20 max idle) using pgx/v5 + sqlx.
+- `internal/infra/postgres/` — Connection pool setup (40 max open, 20 max idle, 10m idle timeout, 20m lifetime) using pgx/v5 + sqlx.
+- `pkg/api/api.go` — Shared HTTP response helpers (e.g. `SendInternalError`).
 
 **Dependency injection:** each layer defines its own interfaces (`deps.go`) that the layer above depends on. Mocks are generated with mockery (config: `.mockery.yml`, template: testify).
 
 ## Key Conventions
 
 - **Price** is stored in smallest currency unit (kopecks/cents) as `BIGINT`.
-- **Product IDs** are random `uint32` generated in the use case layer, not auto-increment from the DB.
+- **Product IDs** are UUID v7 strings generated in the use case layer; stored as `UUID` in PostgreSQL.
 - **Environment** variables are loaded from `.env`; `DB_URL` and `DB_PASSWORD` are required. See `mise.toml` for dev defaults.
-- **Logging format**: JSON in production, pretty via `devslog` in dev (controlled by `APP_ENV`).
+- **Logging format**: JSON in production, pretty via `devslog` in dev. Service checks `env` env var; worker checks `APP_ENV`.
+- **Frontend**: static `frontend/index.html` is served at `GET /` by the service.
 
 ## Mocks
 
@@ -74,4 +76,4 @@ Mocks are placed in `mocks/` subdirectories alongside the interfaces they mock.
 
 ## HTTP Test Files
 
-Runnable API examples live in `http/products/` (`.http` format, compatible with httpyac/REST Client).
+Runnable API examples live in `http/products/` (`.http` format). Run via `ijhttp` with env file `http/http-client.env.json`.
