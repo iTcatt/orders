@@ -1,8 +1,5 @@
 [env]
-_.file = '.env'
 APP_ENV = "dev"
-DB_USER = "postgres"
-DB_NAME = "master"
 JAVA_HOME = "/Library/Java/JavaVirtualMachines/temurin-24.jdk/Contents/Home"
 
 [tools]
@@ -27,14 +24,28 @@ run = "go run cmd/service/main.go"
 [tasks.check]
 depends = ["fmt", "lint"]
 
-[tasks.migrate]
-run = "goose postgres $DB_URL -dir migrations/postgres/master up"
-
-[tasks.down]
-run = "goose postgres $DB_URL -dir migrations/postgres/master down"
-
 [tasks.install_ijhttp]
 run = "brew install ijhttp"
 
 [tasks.httptest]
 run = "ijhttp --env-file http/http-client.env.json -e dev http/products/test.http"
+
+[tasks."infra:up"]
+description = "Start dev infrastructure (postgres, monitoring)"
+run = "docker compose up --build -d"
+
+[tasks."infra:down"]
+description = "Stop dev infrastructure"
+run = "docker compose down"
+
+[tasks."prod:up"]
+description = "Start production stack (app + all dependencies)"
+run = "docker compose -f docker-compose.prod.yml up --build -d"
+
+[tasks."prod:down"]
+description = "Stop production stack"
+run = "docker compose -f docker-compose.prod.yml down"
+
+[tasks."prod:logs"]
+description = "Follow production logs"
+run = "docker compose -f docker-compose.prod.yml logs -f"

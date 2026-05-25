@@ -36,9 +36,7 @@ func run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	if err := godotenv.Load(); err != nil {
-		return fmt.Errorf(".env file not loaded: %w", err)
-	}
+	godotenv.Load() //nolint:errcheck // .env is optional, for local dev only
 
 	db, err := postgres.New(os.Getenv("DB_URL"))
 	if err != nil {

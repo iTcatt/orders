@@ -8,13 +8,11 @@ This project uses [mise](https://mise.jdx.dev/) to manage tools and tasks.
 
 ```bash
 mise install          # Install all dev tools (Go, golangci-lint, mockery, Goose, vegeta)
-mise run start        # Run the service (cmd/service/main.go)
+mise run start        # Run the service locally (cmd/service/main.go)
 mise run test         # Run all tests with -v
 mise run fmt          # Format code with golangci-lint fmt
 mise run lint         # Run golangci-lint
 mise run check        # fmt + lint
-mise run migrate      # Apply Goose migrations (up)
-mise run down         # Rollback migrations (down)
 mise run httptest     # Run HTTP integration tests via ijhttp
 ```
 
@@ -23,10 +21,24 @@ To run a single test:
 go test -v ./internal/usecase/product/... -run TestName
 ```
 
-To start the full infrastructure (PostgreSQL, Prometheus, Grafana):
+### Infrastructure
+
 ```bash
-docker compose up --build
+mise run infra:up     # Start dev infrastructure (PostgreSQL, Prometheus, Grafana)
+mise run infra:down   # Stop dev infrastructure
 ```
+
+Dev workflow: `mise run infra:up` → `mise run start`
+
+### Production
+
+```bash
+mise run prod:up      # Build and start the full production stack (app + all dependencies)
+mise run prod:down    # Stop production stack
+mise run prod:logs    # Follow production logs
+```
+
+Migrations run automatically via `goose-migrations` container on every `prod:up` / `infra:up`.
 
 ## Architecture
 
@@ -55,7 +67,7 @@ PostgreSQL (internal/infra/postgres/)
 
 - **Price** is stored in smallest currency unit (kopecks/cents) as `BIGINT`.
 - **Product IDs** are UUID v7 strings generated in the use case layer; stored as `UUID` in PostgreSQL.
-- **Environment** variables are loaded from `.env`; `DB_URL` and `DB_PASSWORD` are required. See `mise.toml` for dev defaults.
+- **Environment** variables: in dev the service loads `.env` via `godotenv.Load()` (required, must exist). In production all vars are injected via `env_file: .env.prod` in docker-compose — no file mount needed. Both `.env` and `.env.prod` are gitignored.
 - **Logging format**: JSON in production, pretty via `devslog` in dev. Service checks `env` env var; worker checks `APP_ENV`.
 - **Frontend**: static `frontend/index.html` is served at `GET /` by the service.
 

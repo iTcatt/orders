@@ -1,50 +1,52 @@
 # orders
 
-Микросервис для заказов
+Микросервис для управления продуктами на Go. Построен по чистой трёхслойной архитектуре: HTTP-хендлеры → use cases → хранилище.
+  
+## Стек
 
-## Как запустить
+- **Go** — `net/http`, `pgx/v5`, `sqlx`, `squirrel`, `go-playground/validator`
+- **PostgreSQL** — хранилище, миграции через Goose
+- **Prometheus + Grafana** — метрики приложения и БД (postgres-exporter)
+- **UUID v7** — идентификаторы продуктов, генерируются в use case слое
+- **slog + devslog** — структурированное логирование (JSON в prod, pretty в dev)
+
+## Особенности
+
+- Middleware-стек: recovery, requestID, CORS, логирование запросов, Prometheus-метрики
+- Цены хранятся в копейках (`BIGINT`), без float-арифметики
+- Мокирование через mockery (testify-шаблон), интерфейсы изолированы по слоям
+- Нагрузочное тестирование через vegeta
+- Статический фронтенд — `GET /` отдаёт `frontend/index.html`
+- HTTP-примеры в `http/products/` (формат `.http`, запускаются через `ijhttp`)
+
+## Запуск
+
+### Dev
 
 ```bash
-docker compose up --build # запустить бд
-go run ./cmd/service/main.go 
+curl https://mise.run | sh  # установить mise
+mise install                # установить Go, golangci-lint, mockery, Goose, vegeta
+
+mise run infra:up           # поднять PostgreSQL, Prometheus, Grafana
+mise run start              # запустить сервис локально
 ```
 
-## Для разработки
-Установи mise для удобной работы c инструментами
+### Prod
 
 ```bash
-curl https://mise.run | sh
-mise install
+docker compose -f docker-compose.prod.yml up --build -d  # собрать и поднять весь стек
+docker compose -f docker-compose.prod.yml logs -f        # логи
+docker compose -f docker-compose.prod.yml down           # остановить
 ```
 
-План что сделать
+Миграции применяются автоматически при каждом запуске.
 
-* ~~добавить graceful shutdown~~
-* ~~добавить модель заказа и репозиторий~~
-* ~~добавить docker-compose с postgres~~
-* ~~создать api для работы с продуктами~~
-* ~~добавить usecase~~
-* ~~добавить логирующую мидлварь~~
-* ~~добавить валидацию входных данных~~
-* ~~подправить ответы при ошибках~~
-* ~~добавить логирование в хендлерах~~
-* ~~добавить метрики~~
-* ~~добавить прометеус и графану~~
-* ~~добавить примеры запросов в readme или добавить bruno~~
-* ~~добавить миграции при деплое бд~~
-* ~~дописать тесты на хендлер~~
-* ~~провести нагрузочное тестирование~~
-* ~~собирать метрики с postgres~~
-* ~~написать тесты на бд с использованием тестовой базы~~
-* добавить редис
-* добавить sentry
-* добавить бизнес метрики
-* добавить конфигурацию через конфиги
-* добавить в контекст айдишник 
-* развернуть на сервере
-* настроить ci/cd
-* добавить kafka
-* сделать хорошее readme с запуском
-* добавить фронтенд
-* заметить latest в docker-compose
-* заменить docker-compose на k3s
+Grafana — `localhost:3000`, метрики сервиса — `localhost:8081/metrics`.
+
+## Разработка
+
+```bash
+mise run test               # тесты
+mise run check              # форматирование + линтер
+mise run httptest           # HTTP-интеграционные тесты
+```

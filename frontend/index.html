@@ -383,8 +383,8 @@ function cardHTML(p) {
         <div class="card-meta">Обновлён ${formatDate(p.updated_at)}</div>
       </div>
       <div class="card-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openEdit(${p.id})">Изменить</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete(${p.id}, '${escAttr(p.title)}')">Удалить</button>
+        <button class="btn btn-ghost btn-sm" onclick="openEdit('${p.id}')">Изменить</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('${p.id}', '${escAttr(p.title)}')">Удалить</button>
       </div>
     </div>`;
 }
