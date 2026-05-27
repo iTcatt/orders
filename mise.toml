@@ -7,7 +7,6 @@ JAVA_HOME = "/Library/Java/JavaVirtualMachines/temurin-24.jdk/Contents/Home"
 go = "1.26.0"
 "go:github.com/pressly/goose/v3/cmd/goose" = "latest"
 golangci-lint = "v2.10.1"
-mockery = "latest"
 
 [tasks.fmt]
 run = "golangci-lint fmt"
@@ -20,6 +19,9 @@ run = "go test -v ./..."
 
 [tasks.start]
 run = "go run cmd/service/main.go"
+
+[tasks.mocks]
+run = "mockery"
 
 [tasks.check]
 depends = ["fmt", "lint"]

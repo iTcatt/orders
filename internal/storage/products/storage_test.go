@@ -66,7 +66,7 @@ func TestMain(m *testing.M) {
 
 func truncate(t *testing.T) {
 	t.Helper()
-	_, err := testDB.Exec("TRUNCATE TABLE products")
+	_, err := testDB.Exec("TRUNCATE TABLE products CASCADE")
 	require.NoError(t, err)
 }
 

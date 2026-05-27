@@ -22,6 +22,7 @@ const productID = "01900000-0000-7000-8000-000000000064"
 
 type deps struct {
 	productRepo *mocks.MockproductRepo
+	imageRepo   *mocks.MockimageRepo
 	now         func() time.Time
 	idGenerator func() string
 }
@@ -29,6 +30,7 @@ type deps struct {
 func setupDeps(t *testing.T) *deps {
 	return &deps{
 		productRepo: mocks.NewMockproductRepo(t),
+		imageRepo:   mocks.NewMockimageRepo(t),
 		now: func() time.Time {
 			return time.Time{}
 		},
@@ -48,6 +50,10 @@ func TestUsecase_GetProducts(t *testing.T) {
 		Limit:  10,
 		Offset: 0,
 	}
+	productIDs := []string{
+		productID,
+		"01900000-0000-7000-8000-000000000065",
+	}
 
 	tests := []struct {
 		name    string
@@ -63,12 +69,14 @@ func TestUsecase_GetProducts(t *testing.T) {
 					Title:       "title",
 					Description: "description",
 					Price:       1000,
+					Images:      nil,
 				},
 				{
 					ID:          "01900000-0000-7000-8000-000000000065",
 					Title:       "second",
 					Description: "second description",
 					Price:       2000,
+					Images:      nil,
 				},
 			},
 			setup: func(d *deps) {
@@ -89,6 +97,10 @@ func TestUsecase_GetProducts(t *testing.T) {
 						},
 					}, nil).
 					Once()
+				d.imageRepo.EXPECT().
+					GetByProductIDs(mock.Anything, productIDs).
+					Return(nil, nil).
+					Once()
 			},
 		},
 		{
@@ -108,7 +120,7 @@ func TestUsecase_GetProducts(t *testing.T) {
 			deps := setupDeps(t)
 			tt.setup(deps)
 
-			uc := product.New(deps.productRepo, deps.now, deps.idGenerator)
+			uc := product.New(deps.productRepo, deps.imageRepo, deps.now, deps.idGenerator)
 
 			products, err := uc.GetProducts(ctx, in)
 			if tt.wantErr != "" {
@@ -142,6 +154,10 @@ func TestUsecase_GetProductByID(t *testing.T) {
 					GetByID(mock.Anything, productID).
 					Return(p, nil).
 					Once()
+				d.imageRepo.EXPECT().
+					GetByProductID(mock.Anything, productID).
+					Return(nil, nil).
+					Once()
 			},
 		},
 		{
@@ -171,7 +187,7 @@ func TestUsecase_GetProductByID(t *testing.T) {
 			deps := setupDeps(t)
 			tt.setup(deps)
 
-			uc := product.New(deps.productRepo, deps.now, deps.idGenerator)
+			uc := product.New(deps.productRepo, deps.imageRepo, deps.now, deps.idGenerator)
 
 			got, err := uc.GetProductByID(ctx, productID)
 			if tt.wantErr != "" {
@@ -229,7 +245,7 @@ func TestUsecase_CreateProduct(t *testing.T) {
 			deps := setupDeps(t)
 			tt.setup(deps)
 
-			uc := product.New(deps.productRepo, deps.now, deps.idGenerator)
+			uc := product.New(deps.productRepo, deps.imageRepo, deps.now, deps.idGenerator)
 
 			id, err := uc.CreateProduct(ctx, in)
 			if tt.wantErr != "" {
@@ -294,7 +310,7 @@ func TestUsecase_UpdateProduct(t *testing.T) {
 			deps := setupDeps(t)
 			tt.setup(deps)
 
-			uc := product.New(deps.productRepo, deps.now, deps.idGenerator)
+			uc := product.New(deps.productRepo, deps.imageRepo, deps.now, deps.idGenerator)
 
 			err := uc.UpdateProduct(ctx, productID, in)
 			if tt.wantErr != "" {
@@ -350,7 +366,7 @@ func TestUsecase_DeleteProduct(t *testing.T) {
 			deps := setupDeps(t)
 			tt.setup(deps)
 
-			uc := product.New(deps.productRepo, deps.now, deps.idGenerator)
+			uc := product.New(deps.productRepo, deps.imageRepo, deps.now, deps.idGenerator)
 
 			err := uc.DeleteProduct(ctx, productID)
 			if tt.wantErr != "" {

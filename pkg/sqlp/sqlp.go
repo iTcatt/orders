@@ -8,6 +8,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jmoiron/sqlx"
 )
 
 var (
@@ -21,7 +22,7 @@ type querier interface {
 	GetContext(ctx context.Context, dest any, query string, args ...any) error
 }
 
-func Get[T any](ctx context.Context, db querier, query sq.SelectBuilder) (T, error) {
+func Get[T any](ctx context.Context, db *sqlx.DB, query sq.SelectBuilder) (T, error) {
 	var result T
 
 	q, args, err := query.ToSql()
@@ -29,7 +30,7 @@ func Get[T any](ctx context.Context, db querier, query sq.SelectBuilder) (T, err
 		return result, err
 	}
 
-	err = db.GetContext(ctx, &result, q, args...)
+	err = dbFromCtx(ctx, db).GetContext(ctx, &result, q, args...)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return result, ErrNotFound
@@ -40,14 +41,14 @@ func Get[T any](ctx context.Context, db querier, query sq.SelectBuilder) (T, err
 	return result, nil
 }
 
-func Select[T any](ctx context.Context, db querier, query sq.SelectBuilder) ([]T, error) {
+func Select[T any](ctx context.Context, db *sqlx.DB, query sq.SelectBuilder) ([]T, error) {
 	q, args, err := query.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("build select query: %w", err)
 	}
 
 	var result []T
-	err = db.SelectContext(ctx, &result, q, args...)
+	err = dbFromCtx(ctx, db).SelectContext(ctx, &result, q, args...)
 	if err != nil {
 		return nil, fmt.Errorf("execute select query: %w", err)
 	}
@@ -55,13 +56,13 @@ func Select[T any](ctx context.Context, db querier, query sq.SelectBuilder) ([]T
 	return result, nil
 }
 
-func Insert(ctx context.Context, db querier, query sq.InsertBuilder) error {
+func Insert(ctx context.Context, db *sqlx.DB, query sq.InsertBuilder) error {
 	q, args, err := query.ToSql()
 	if err != nil {
 		return fmt.Errorf("build insert query: %w", err)
 	}
 
-	_, err = db.ExecContext(ctx, q, args...)
+	_, err = dbFromCtx(ctx, db).ExecContext(ctx, q, args...)
 	if err != nil {
 		if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok && pgErr.Code == "23505" {
 			return ErrAlreadyExists
@@ -72,13 +73,13 @@ func Insert(ctx context.Context, db querier, query sq.InsertBuilder) error {
 	return nil
 }
 
-func Update(ctx context.Context, db querier, q sq.UpdateBuilder) error {
+func Update(ctx context.Context, db *sqlx.DB, q sq.UpdateBuilder) error {
 	query, args, err := q.ToSql()
 	if err != nil {
 		return fmt.Errorf("build update query: %w", err)
 	}
 
-	affected, err := db.ExecContext(ctx, query, args...)
+	affected, err := dbFromCtx(ctx, db).ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("execute update query: %w", err)
 	}
@@ -92,13 +93,13 @@ func Update(ctx context.Context, db querier, q sq.UpdateBuilder) error {
 	return nil
 }
 
-func Delete(ctx context.Context, db querier, q sq.DeleteBuilder) error {
+func Delete(ctx context.Context, db *sqlx.DB, q sq.DeleteBuilder) error {
 	query, args, err := q.ToSql()
 	if err != nil {
 		return fmt.Errorf("build delete query: %w", err)
 	}
 
-	affected, err := db.ExecContext(ctx, query, args...)
+	affected, err := dbFromCtx(ctx, db).ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("execute delete query: %w", err)
 	}

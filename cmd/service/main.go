@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -16,10 +17,16 @@ import (
 	"github.com/joho/godotenv"
 
 	"iTcatt/orders/internal/api"
+	apiImage "iTcatt/orders/internal/api/image"
 	apiProduct "iTcatt/orders/internal/api/product"
+	minioInfra "iTcatt/orders/internal/infra/minio"
 	"iTcatt/orders/internal/infra/postgres"
+	storageImages "iTcatt/orders/internal/storage/images"
+	storageObjects "iTcatt/orders/internal/storage/objects"
 	"iTcatt/orders/internal/storage/products"
+	imageUsecase "iTcatt/orders/internal/usecase/image"
 	productUsecase "iTcatt/orders/internal/usecase/product"
+	"iTcatt/orders/pkg/sqlp"
 )
 
 const shutdownTimeout = 5 * time.Second
@@ -36,7 +43,7 @@ func run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	godotenv.Load() //nolint:errcheck // .env is optional, for local dev only
+	godotenv.Load() //nolint:errcheck,gosec // .env is optional, for local dev only
 
 	db, err := postgres.New(os.Getenv("DB_URL"))
 	if err != nil {
@@ -48,14 +55,35 @@ func run() error {
 		}
 	}()
 
-	productDB := products.New(db)
-
-	productUC := productUsecase.New(productDB, time.Now, func() string {
-		return uuid.Must(uuid.NewV7()).String()
+	useSSL, _ := strconv.ParseBool(os.Getenv("MINIO_USE_SSL"))
+	minioClient, err := minioInfra.New(minioInfra.Config{
+		Endpoint:  os.Getenv("MINIO_ENDPOINT"),
+		AccessKey: os.Getenv("MINIO_ACCESS_KEY"),
+		SecretKey: os.Getenv("MINIO_SECRET_KEY"),
+		UseSSL:    useSSL,
 	})
-	productHandler := apiProduct.New(productUC)
+	if err != nil {
+		return fmt.Errorf("create minio client: %w", err)
+	}
 
-	router := api.NewRouter(productHandler)
+	objectStore := storageObjects.New(minioClient, os.Getenv("MINIO_BUCKET"), os.Getenv("MINIO_PUBLIC_URL"))
+	if err := objectStore.EnsureBucket(ctx); err != nil {
+		return fmt.Errorf("ensure minio bucket: %w", err)
+	}
+
+	idGen := func() string { return uuid.Must(uuid.NewV7()).String() }
+
+	productDB := products.New(db)
+	imageDB := storageImages.New(db)
+
+	productUC := productUsecase.New(productDB, imageDB, time.Now, idGen)
+	txManager := sqlp.NewTxManager(db)
+	imageUC := imageUsecase.New(imageDB, objectStore, productDB, txManager, time.Now, idGen)
+
+	productHandler := apiProduct.New(productUC)
+	imageHandler := apiImage.New(imageUC)
+
+	router := api.NewRouter(productHandler, imageHandler)
 
 	server := &http.Server{
 		Addr:              ":8081",

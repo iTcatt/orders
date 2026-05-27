@@ -69,15 +69,8 @@ func parseQueryUint32(s string, defaultVal uint32) (uint32, error) {
 
 func convertToProductSlice(products []models.Product) []dto.Product {
 	out := make([]dto.Product, 0, len(products))
-	for _, product := range products {
-		out = append(out, dto.Product{
-			ID:          product.ID,
-			Title:       product.Title,
-			Description: product.Description,
-			Price:       product.Price,
-			CreatedAt:   product.CreatedAt,
-			UpdatedAt:   product.UpdatedAt,
-		})
+	for i := range products {
+		out = append(out, convertToProduct(products[i]))
 	}
 	return out
 }

@@ -12,7 +12,7 @@ type Router struct {
 	middlewares []func(http.Handler) http.Handler
 }
 
-func NewRouter(productHandler productHandler) *Router {
+func NewRouter(productHandler productHandler, imageHandler imageHandler) *Router {
 	prometheus.MustRegister(httpServerRequestDuration, httpServerActiveRequests)
 
 	r := &Router{mux: http.NewServeMux()}
@@ -27,6 +27,9 @@ func NewRouter(productHandler productHandler) *Router {
 	r.HandleFunc("POST /product/", productHandler.Create)
 	r.HandleFunc("PATCH /product/{id}", productHandler.Update)
 	r.HandleFunc("DELETE /product/{id}", productHandler.Delete)
+
+	r.HandleFunc("POST /product/{id}/image", imageHandler.Upload)
+	r.HandleFunc("DELETE /product/{id}/image/{imageId}", imageHandler.Delete)
 
 	r.mux.Handle("GET /metrics", promhttp.Handler())
 

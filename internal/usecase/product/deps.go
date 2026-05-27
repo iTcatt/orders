@@ -14,3 +14,8 @@ type productRepo interface {
 	Update(ctx context.Context, id string, in storage.UpdateProductIn) error
 	Delete(ctx context.Context, id string) error
 }
+
+type imageRepo interface {
+	GetByProductIDs(ctx context.Context, productIDs []string) ([]models.Image, error)
+	GetByProductID(ctx context.Context, productID string) ([]models.Image, error)
+}

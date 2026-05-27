@@ -35,17 +35,22 @@ func (h *handler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out := convertToProduct(product)
-	api.SendJSON(w, out, http.StatusOK)
+	api.SendJSON(w, convertToProduct(product), http.StatusOK)
 }
 
-func convertToProduct(product models.Product) dto.Product {
+func convertToProduct(p models.Product) dto.Product {
+	imageURLs := make([]string, 0, len(p.Images))
+	for _, img := range p.Images {
+		imageURLs = append(imageURLs, img.URL)
+	}
+
 	return dto.Product{
-		ID:          product.ID,
-		Title:       product.Title,
-		Description: product.Description,
-		Price:       product.Price,
-		CreatedAt:   product.CreatedAt,
-		UpdatedAt:   product.UpdatedAt,
+		ID:          p.ID,
+		Title:       p.Title,
+		Description: p.Description,
+		Price:       p.Price,
+		ImageURLs:   imageURLs,
+		CreatedAt:   p.CreatedAt,
+		UpdatedAt:   p.UpdatedAt,
 	}
 }

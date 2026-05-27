@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -102,7 +103,10 @@ func logMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		body := readBody(r)
+		var body string
+		if !strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/") {
+			body = readBody(r)
+		}
 
 		rw := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
 		start := time.Now()

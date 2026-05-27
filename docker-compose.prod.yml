@@ -26,6 +26,24 @@ services:
       - ./migrations/postgres/master:/migrations
     restart: "no"
 
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - .env.prod
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   service:
     container_name: orders-service
     build: .
@@ -36,6 +54,8 @@ services:
     depends_on:
       migrations:
         condition: service_completed_successfully
+      minio:
+        condition: service_healthy
     environment:
       env: prod
     restart: unless-stopped
@@ -77,3 +97,4 @@ services:
 volumes:
   pgdata:
   grafana-data:
+  minio-data:
