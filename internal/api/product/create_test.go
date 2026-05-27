@@ -20,6 +20,7 @@ func TestHandler_Create(t *testing.T) {
 		Title:       "Test Product",
 		Description: "Test Description",
 		Price:       100,
+		CategoryID:  1,
 	}
 	bytesIn, _ := json.Marshal(in)
 
@@ -69,22 +70,27 @@ func TestHandler_CreateValidation(t *testing.T) {
 	}{
 		{
 			name: "empty title",
-			in:   `{"description": "desc", "price": 100}`,
+			in:   `{"description": "desc", "price": 100, "category_id": 1}`,
 			want: `{"message":"validation: Key: 'CreateProductIn.Title' Error:Field validation for 'Title' failed on the 'required' tag","code":400}`,
 		},
 		{
 			name: "empty description",
-			in:   `{"title": "Test Product", "price": 100}`,
+			in:   `{"title": "Test Product", "price": 100, "category_id": 1}`,
 			want: `{"message":"validation: Key: 'CreateProductIn.Description' Error:Field validation for 'Description' failed on the 'required' tag","code":400}`,
 		},
 		{
 			name: "empty price",
-			in:   `{"title": "Test Product", "description": "Test Description"}`,
+			in:   `{"title": "Test Product", "description": "Test Description", "category_id": 1}`,
 			want: `{"message":"validation: Key: 'CreateProductIn.Price' Error:Field validation for 'Price' failed on the 'required' tag","code":400}`,
 		},
 		{
+			name: "empty category_id",
+			in:   `{"title": "Test Product", "description": "Test Description", "price": 100}`,
+			want: `{"message":"validation: Key: 'CreateProductIn.CategoryID' Error:Field validation for 'CategoryID' failed on the 'required' tag","code":400}`,
+		},
+		{
 			name: "negative price",
-			in:   `{"title": "Test Product", "description": "Test Description", "price": -100}`,
+			in:   `{"title": "Test Product", "description": "Test Description", "price": -100, "category_id": 1}`,
 			want: `{"message":"invalid request body: json: cannot unmarshal number -100 into Go struct field CreateProductIn.price of type uint32","code":400}`,
 		},
 	}

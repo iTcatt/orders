@@ -12,11 +12,17 @@ type Router struct {
 	middlewares []func(http.Handler) http.Handler
 }
 
-func NewRouter(productHandler productHandler, imageHandler imageHandler) *Router {
+func NewRouter(productHandler productHandler, imageHandler imageHandler, categoryHandler categoryHandler) *Router {
 	prometheus.MustRegister(httpServerRequestDuration, httpServerActiveRequests)
 
 	r := &Router{mux: http.NewServeMux()}
-	r.Use(recoveryMiddleware, requestIDMiddleware, corsMiddleware, logMiddleware, metricsMiddleware)
+	r.Use(
+		recoveryMiddleware,
+		requestIDMiddleware,
+		corsMiddleware,
+		logMiddleware,
+		metricsMiddleware,
+	)
 
 	r.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./frontend/index.html")
@@ -30,6 +36,9 @@ func NewRouter(productHandler productHandler, imageHandler imageHandler) *Router
 
 	r.HandleFunc("POST /product/{id}/image", imageHandler.Upload)
 	r.HandleFunc("DELETE /product/{id}/image/{imageId}", imageHandler.Delete)
+	r.HandleFunc("PUT /product/{id}/images/order", imageHandler.Reorder)
+
+	r.HandleFunc("GET /category/", categoryHandler.Get)
 
 	r.mux.Handle("GET /metrics", promhttp.Handler())
 
@@ -42,8 +51,8 @@ func (r *Router) Use(middlewares ...func(http.Handler) http.Handler) {
 
 func (r *Router) HandleFunc(pattern string, handlerFunc http.HandlerFunc) {
 	handler := http.Handler(handlerFunc)
-	for _, middleware := range r.middlewares {
-		handler = middleware(handler)
+	for i := len(r.middlewares) - 1; i >= 0; i-- {
+		handler = r.middlewares[i](handler)
 	}
 	r.mux.Handle(pattern, handler)
 }

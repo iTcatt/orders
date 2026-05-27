@@ -45,5 +45,6 @@ func (h *handler) extractCreateInput(r *http.Request) (usecase.CreateProductIn, 
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,
+		CategoryID:  in.CategoryID,
 	}, nil
 }

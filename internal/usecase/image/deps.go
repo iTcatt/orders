@@ -13,6 +13,7 @@ type imageRepo interface {
 	GetByProductID(ctx context.Context, productID string) ([]models.Image, error)
 	Count(ctx context.Context, productID string) (int, error)
 	Delete(ctx context.Context, imageID string) error
+	UpdatePosition(ctx context.Context, img models.Image) error
 }
 
 type objectStore interface {

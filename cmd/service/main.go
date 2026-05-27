@@ -17,13 +17,16 @@ import (
 	"github.com/joho/godotenv"
 
 	"iTcatt/orders/internal/api"
+	apiCategory "iTcatt/orders/internal/api/category"
 	apiImage "iTcatt/orders/internal/api/image"
 	apiProduct "iTcatt/orders/internal/api/product"
 	minioInfra "iTcatt/orders/internal/infra/minio"
 	"iTcatt/orders/internal/infra/postgres"
+	storageCategories "iTcatt/orders/internal/storage/categories"
 	storageImages "iTcatt/orders/internal/storage/images"
 	storageObjects "iTcatt/orders/internal/storage/objects"
 	"iTcatt/orders/internal/storage/products"
+	categoryUsecase "iTcatt/orders/internal/usecase/category"
 	imageUsecase "iTcatt/orders/internal/usecase/image"
 	productUsecase "iTcatt/orders/internal/usecase/product"
 	"iTcatt/orders/pkg/sqlp"
@@ -75,15 +78,18 @@ func run() error {
 
 	productDB := products.New(db)
 	imageDB := storageImages.New(db)
+	categoryDB := storageCategories.New(db)
 
 	productUC := productUsecase.New(productDB, imageDB, time.Now, idGen)
 	txManager := sqlp.NewTxManager(db)
 	imageUC := imageUsecase.New(imageDB, objectStore, productDB, txManager, time.Now, idGen)
+	categoryUC := categoryUsecase.New(categoryDB)
 
 	productHandler := apiProduct.New(productUC)
 	imageHandler := apiImage.New(imageUC)
+	categoryHandler := apiCategory.New(categoryUC)
 
-	router := api.NewRouter(productHandler, imageHandler)
+	router := api.NewRouter(productHandler, imageHandler, categoryHandler)
 
 	server := &http.Server{
 		Addr:              ":8081",

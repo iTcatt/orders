@@ -167,6 +167,116 @@ func TestUsecase_Upload(t *testing.T) {
 	}
 }
 
+func TestUsecase_Reorder(t *testing.T) {
+	ctx := context.Background()
+
+	imageID2 := "01900000-0000-7000-8000-000000000066"
+
+	img1 := models.Image{ID: imageID, ProductID: productID, Position: 0}
+	img2 := models.Image{ID: imageID2, ProductID: productID, Position: 1}
+	twoImages := []models.Image{img1, img2}
+
+	defaultPositions := []usecase.ImagePosition{
+		{ID: imageID2, Position: 0},
+		{ID: imageID, Position: 1},
+	}
+	reordered := []models.Image{
+		{ID: imageID2, ProductID: productID, Position: 0},
+		{ID: imageID, ProductID: productID, Position: 1},
+	}
+
+	tests := []struct {
+		name      string
+		positions []usecase.ImagePosition
+		wantErr   string
+		setup     func(d *deps)
+	}{
+		{
+			name:      "success",
+			positions: defaultPositions,
+			setup: func(d *deps) {
+				d.imageRepo.EXPECT().GetByProductID(mock.Anything, productID).Return(twoImages, nil).Once()
+				executeTx(d)
+				d.imageRepo.EXPECT().UpdatePosition(mock.Anything, reordered[0]).Return(nil).Once()
+				d.imageRepo.EXPECT().UpdatePosition(mock.Anything, reordered[1]).Return(nil).Once()
+			},
+		},
+		{
+			name:      "get images error",
+			positions: defaultPositions,
+			setup: func(d *deps) {
+				d.imageRepo.EXPECT().GetByProductID(mock.Anything, productID).Return(nil, errors.New("db error")).Once()
+			},
+			wantErr: "get images: db error",
+		},
+		{
+			name:      "wrong positions count",
+			positions: []usecase.ImagePosition{{ID: imageID, Position: 0}},
+			setup: func(d *deps) {
+				d.imageRepo.EXPECT().GetByProductID(mock.Anything, productID).Return(twoImages, nil).Once()
+			},
+			wantErr: "expected 2 positions, got 1",
+		},
+		{
+			name: "image not in product",
+			positions: []usecase.ImagePosition{
+				{ID: "01900000-0000-7000-8000-000000000099", Position: 0},
+				{ID: imageID, Position: 1},
+			},
+			setup: func(d *deps) {
+				d.imageRepo.EXPECT().GetByProductID(mock.Anything, productID).Return(twoImages, nil).Once()
+			},
+			wantErr: "image 01900000-0000-7000-8000-000000000099 does not belong to product",
+		},
+		{
+			name: "position out of range",
+			positions: []usecase.ImagePosition{
+				{ID: imageID, Position: 5},
+				{ID: imageID2, Position: 0},
+			},
+			setup: func(d *deps) {
+				d.imageRepo.EXPECT().GetByProductID(mock.Anything, productID).Return(twoImages, nil).Once()
+			},
+			wantErr: "position 5 out of range [0, 1]",
+		},
+		{
+			name: "duplicate position",
+			positions: []usecase.ImagePosition{
+				{ID: imageID, Position: 0},
+				{ID: imageID2, Position: 0},
+			},
+			setup: func(d *deps) {
+				d.imageRepo.EXPECT().GetByProductID(mock.Anything, productID).Return(twoImages, nil).Once()
+			},
+			wantErr: "duplicate position 0",
+		},
+		{
+			name:      "update position error",
+			positions: defaultPositions,
+			setup: func(d *deps) {
+				d.imageRepo.EXPECT().GetByProductID(mock.Anything, productID).Return(twoImages, nil).Once()
+				executeTx(d)
+				d.imageRepo.EXPECT().UpdatePosition(mock.Anything, reordered[0]).Return(errors.New("db error")).Once()
+			},
+			wantErr: "update position for image " + imageID2 + ": db error",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := setupDeps(t)
+			tt.setup(d)
+
+			err := d.newUsecase().Reorder(ctx, productID, tt.positions)
+			if tt.wantErr != "" {
+				assert.EqualError(t, err, tt.wantErr)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestUsecase_Delete(t *testing.T) {
 	ctx := context.Background()
 

@@ -35,8 +35,9 @@ func New(
 
 func (u *usecase) GetProducts(ctx context.Context, in uc.GetProductsIn) ([]models.Product, error) {
 	products, err := u.repo.Get(ctx, storage.GetProductsIn{
-		Limit:  in.Limit,
-		Offset: (in.Page - 1) * in.Limit,
+		Limit:      in.Limit,
+		Offset:     (in.Page - 1) * in.Limit,
+		CategoryID: in.CategoryID,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("get products: %w", err)
@@ -74,6 +75,7 @@ func (u *usecase) CreateProduct(ctx context.Context, in uc.CreateProductIn) (str
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,
+		CategoryID:  in.CategoryID,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
@@ -89,6 +91,7 @@ func (u *usecase) UpdateProduct(ctx context.Context, id string, in uc.UpdateProd
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,
+		CategoryID:  in.CategoryID,
 	})
 	if err != nil {
 		if errors.Is(err, sqlp.ErrNotFound) {

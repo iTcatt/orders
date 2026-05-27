@@ -4,6 +4,7 @@ type UpdateProductIn struct {
 	Title       *string
 	Description *string
 	Price       *uint32
+	CategoryID  *int
 }
 
 func (in UpdateProductIn) ToMap() map[string]any {
@@ -17,10 +18,14 @@ func (in UpdateProductIn) ToMap() map[string]any {
 	if in.Price != nil {
 		result["price"] = *in.Price
 	}
+	if in.CategoryID != nil {
+		result["category_id"] = *in.CategoryID
+	}
 	return result
 }
 
 type GetProductsIn struct {
-	Limit  uint32
-	Offset uint32
+	Limit      uint32
+	Offset     uint32
+	CategoryID *int
 }

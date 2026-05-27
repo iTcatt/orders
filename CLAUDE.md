@@ -69,11 +69,15 @@ MinIO     (internal/infra/minio/)
 
 **Dependency injection:** each layer defines its own interfaces (`deps.go`) that the layer above depends on. Mocks are generated with mockery (config: `.mockery.yml`, template: testify).
 
+When adding a new handler method, update **both** the domain-level interface (`internal/api/{domain}/deps.go`) **and** the top-level router interface (`internal/api/deps.go`). The router file declares `productHandler` and `imageHandler` interfaces used by `NewRouter`; omitting a method there causes a compile error.
+
 ## DTOs
 
 - `internal/usecase/dto.go` — shared input DTOs for use cases (`GetProductsIn`, `CreateProductIn`, `UpdateProductIn`, `UploadImageIn`).
 - `internal/api/product/dto/` — HTTP-level request/response structs for the product handler.
-- `internal/api/image/dto/` — HTTP-level response structs for the image handler (`UploadResponse`).
+- `internal/api/image/dto/` — HTTP-level request/response structs for the image handler.
+
+**Convention:** all handler input/output types go in `dto/request.go` and `dto/response.go`. Never define inline structs for request bodies inside handler functions.
 
 ## Key Conventions
 
@@ -88,18 +92,15 @@ MinIO     (internal/infra/minio/)
 
 Regenerate mocks after changing any interface in `./internal`:
 ```bash
-mise run mocks
-```
-
-`mise run mocks` calls `mockery` using the mise-managed binary. **Do not use the system `mockery`** — it may be a different version and will fail to parse `.mockery.yml`. The correct binary is at:
-```
 ~/.local/share/mise/installs/mockery/3.7.0/mockery
 ```
 
-If `mise run mocks` fails because an existing mock file has compile errors (e.g. after an interface change), stub the broken file first, then regenerate:
+**Do not use `mise run mocks` or the system `mockery`** — the mise task may invoke the wrong binary, and the system mockery may be a different version that fails to parse `.mockery.yml`. Always run the mise-managed binary directly.
+
+If regeneration fails because an existing mock file has compile errors (e.g. after an interface change), stub the broken file first, then regenerate:
 ```bash
 echo "package mocks" > internal/path/to/mocks/mock_broken.go
-mise run mocks
+~/.local/share/mise/installs/mockery/3.7.0/mockery
 ```
 
 Mocks are placed in `mocks/` subdirectories alongside the interfaces they mock.
@@ -109,6 +110,15 @@ Mocks are placed in `mocks/` subdirectories alongside the interfaces they mock.
 - Prometheus scrapes `/metrics` (port 8081) every 5s.
 - Grafana at `localhost:3000` — dashboards in `monitoring/dashboards/`.
 - PostgreSQL metrics via postgres-exporter at port 9187.
+
+## Testing Conventions
+
+Handler tests follow the pattern in `internal/api/product/`:
+
+- `handler_test.go` — shared constants, `type deps struct`, `setupDeps(t)`, and request-builder helpers only. No test functions.
+- One file per handler: `create_test.go`, `update_test.go`, `delete_test.go`, etc.
+- **Do not use table-driven tests** (`tests := []struct{...}`). Each case is a direct `t.Run("name", func(t *testing.T) { ... })` with its own `setupDeps()` call.
+- Validation-only cases (no usecase call needed) pass `nil` to the constructor: `h := product.New(nil)`.
 
 ## HTTP Test Files
 

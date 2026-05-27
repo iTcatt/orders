@@ -50,9 +50,15 @@ func extractGetInput(r *http.Request) (usecase.GetProductsIn, error) {
 		limit = maxLimit
 	}
 
+	categoryID, err := parseQueryIntPtr(r.URL.Query().Get("category_id"))
+	if err != nil {
+		return usecase.GetProductsIn{}, fmt.Errorf("invalid category_id: %w", err)
+	}
+
 	return usecase.GetProductsIn{
-		Page:  page,
-		Limit: limit,
+		Page:       page,
+		Limit:      limit,
+		CategoryID: categoryID,
 	}, nil
 }
 
@@ -65,6 +71,17 @@ func parseQueryUint32(s string, defaultVal uint32) (uint32, error) {
 		return 0, fmt.Errorf("must be a positive integer")
 	}
 	return uint32(v), nil
+}
+
+func parseQueryIntPtr(s string) (*int, error) {
+	if s == "" {
+		return nil, nil
+	}
+	v, err := strconv.Atoi(s)
+	if err != nil || v <= 0 {
+		return nil, fmt.Errorf("must be a positive integer")
+	}
+	return &v, nil
 }
 
 func convertToProductSlice(products []models.Product) []dto.Product {

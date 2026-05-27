@@ -13,6 +13,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.100
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.22.0
+	github.com/samber/lo v1.53.0
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.41.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.41.0

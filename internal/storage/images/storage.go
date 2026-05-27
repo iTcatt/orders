@@ -98,3 +98,12 @@ func (s *storage) Delete(ctx context.Context, imageID string) error {
 
 	return sqlp.Delete(ctx, s.db, query)
 }
+
+func (s *storage) UpdatePosition(ctx context.Context, img models.Image) error {
+	query := s.builder.
+		Update(imageTable).
+		Set("position", img.Position).
+		Where(sq.Eq{"id": img.ID})
+
+	return sqlp.Update(ctx, s.db, query)
+}

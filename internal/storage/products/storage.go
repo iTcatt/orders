@@ -34,6 +34,10 @@ func (s *storage) Get(ctx context.Context, in st.GetProductsIn) ([]models.Produc
 		Limit(uint64(in.Limit)).
 		Offset(uint64(in.Offset))
 
+	if in.CategoryID != nil {
+		query = query.Where(sq.Eq{"category_id": *in.CategoryID})
+	}
+
 	return sqlp.Select[models.Product](ctx, s.db, query)
 }
 
@@ -78,6 +82,7 @@ func getFields() []string {
 		"title",
 		"description",
 		"price",
+		"category_id",
 		"created_at",
 		"updated_at",
 	}

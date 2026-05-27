@@ -13,4 +13,9 @@ type productHandler interface {
 type imageHandler interface {
 	Upload(w http.ResponseWriter, r *http.Request)
 	Delete(w http.ResponseWriter, r *http.Request)
+	Reorder(w http.ResponseWriter, r *http.Request)
+}
+
+type categoryHandler interface {
+	Get(w http.ResponseWriter, r *http.Request)
 }

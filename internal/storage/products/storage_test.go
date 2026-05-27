@@ -77,6 +77,7 @@ func newProduct(id string) models.Product {
 		Title:       "Test Product",
 		Description: "Test Description",
 		Price:       9900,
+		CategoryID:  1,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}

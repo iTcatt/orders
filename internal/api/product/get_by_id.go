@@ -39,9 +39,9 @@ func (h *handler) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func convertToProduct(p models.Product) dto.Product {
-	imageURLs := make([]string, 0, len(p.Images))
+	images := make([]dto.Image, 0, len(p.Images))
 	for _, img := range p.Images {
-		imageURLs = append(imageURLs, img.URL)
+		images = append(images, dto.Image{ID: img.ID, URL: img.URL})
 	}
 
 	return dto.Product{
@@ -49,7 +49,8 @@ func convertToProduct(p models.Product) dto.Product {
 		Title:       p.Title,
 		Description: p.Description,
 		Price:       p.Price,
-		ImageURLs:   imageURLs,
+		CategoryID:  p.CategoryID,
+		Images:      images,
 		CreatedAt:   p.CreatedAt,
 		UpdatedAt:   p.UpdatedAt,
 	}

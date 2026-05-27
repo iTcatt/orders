@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/samber/lo"
+
 	"iTcatt/orders/internal/models"
 	"iTcatt/orders/internal/usecase"
 	"iTcatt/orders/pkg/sqlp"
@@ -86,6 +88,45 @@ func (u *Usecase) Upload(ctx context.Context, input usecase.UploadImageIn) (mode
 	}
 
 	return img, nil
+}
+
+func (u *Usecase) Reorder(ctx context.Context, productID string, positions []usecase.ImagePosition) error {
+	images, err := u.imageRepo.GetByProductID(ctx, productID)
+	if err != nil {
+		return fmt.Errorf("get images: %w", err)
+	}
+
+	if len(positions) != len(images) {
+		return fmt.Errorf("expected %d positions, got %d", len(images), len(positions))
+	}
+
+	imageMap := lo.KeyBy(images, func(img models.Image) string { return img.ID })
+	updated := make([]models.Image, len(images))
+
+	for _, p := range positions {
+		img, ok := imageMap[p.ID]
+		if !ok {
+			return fmt.Errorf("image %s does not belong to product", p.ID)
+		}
+		if p.Position < 0 || int(p.Position) >= len(images) {
+			return fmt.Errorf("position %d out of range [0, %d]", p.Position, len(images)-1)
+		}
+		// two different IDs can claim the same slot; zero value means the slot is free
+		if updated[p.Position] != (models.Image{}) {
+			return fmt.Errorf("duplicate position %d", p.Position)
+		}
+		img.Position = p.Position
+		updated[p.Position] = img
+	}
+
+	return u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		for _, img := range updated {
+			if err := u.imageRepo.UpdatePosition(ctx, img); err != nil {
+				return fmt.Errorf("update position for image %s: %w", img.ID, err)
+			}
+		}
+		return nil
+	})
 }
 
 func (u *Usecase) Delete(ctx context.Context, imageID string) error {

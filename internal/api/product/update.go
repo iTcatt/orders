@@ -55,7 +55,7 @@ func (h *handler) extractUpdateInput(r *http.Request) (string, usecase.UpdatePro
 		return "", usecase.UpdateProductIn{}, fmt.Errorf("validation: %w", err)
 	}
 
-	if in.Title == nil && in.Description == nil && in.Price == nil {
+	if in.Title == nil && in.Description == nil && in.Price == nil && in.CategoryID == nil {
 		return "", usecase.UpdateProductIn{}, fmt.Errorf("at least one field must be provided")
 	}
 
@@ -63,5 +63,6 @@ func (h *handler) extractUpdateInput(r *http.Request) (string, usecase.UpdatePro
 		Title:       in.Title,
 		Description: in.Description,
 		Price:       in.Price,
+		CategoryID:  in.CategoryID,
 	}, nil
 }

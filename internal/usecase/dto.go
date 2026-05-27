@@ -3,20 +3,28 @@ package usecase
 import "io"
 
 type GetProductsIn struct {
-	Page  uint32
-	Limit uint32
+	Page       uint32
+	Limit      uint32
+	CategoryID *int
 }
 
 type CreateProductIn struct {
 	Title       string
 	Description string
 	Price       uint32
+	CategoryID  int
 }
 
 type UpdateProductIn struct {
 	Title       *string
 	Description *string
 	Price       *uint32
+	CategoryID  *int
+}
+
+type ImagePosition struct {
+	ID       string
+	Position int16
 }
 
 type UploadImageIn struct {

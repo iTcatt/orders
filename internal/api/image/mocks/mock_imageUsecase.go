@@ -96,6 +96,69 @@ func (_c *MockimageUsecase_Delete_Call) RunAndReturn(run func(ctx context.Contex
 	return _c
 }
 
+// Reorder provides a mock function for the type MockimageUsecase
+func (_mock *MockimageUsecase) Reorder(ctx context.Context, productID string, positions []usecase.ImagePosition) error {
+	ret := _mock.Called(ctx, productID, positions)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Reorder")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, []usecase.ImagePosition) error); ok {
+		r0 = returnFunc(ctx, productID, positions)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockimageUsecase_Reorder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Reorder'
+type MockimageUsecase_Reorder_Call struct {
+	*mock.Call
+}
+
+// Reorder is a helper method to define mock.On call
+//   - ctx context.Context
+//   - productID string
+//   - positions []usecase.ImagePosition
+func (_e *MockimageUsecase_Expecter) Reorder(ctx interface{}, productID interface{}, positions interface{}) *MockimageUsecase_Reorder_Call {
+	return &MockimageUsecase_Reorder_Call{Call: _e.mock.On("Reorder", ctx, productID, positions)}
+}
+
+func (_c *MockimageUsecase_Reorder_Call) Run(run func(ctx context.Context, productID string, positions []usecase.ImagePosition)) *MockimageUsecase_Reorder_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []usecase.ImagePosition
+		if args[2] != nil {
+			arg2 = args[2].([]usecase.ImagePosition)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockimageUsecase_Reorder_Call) Return(err error) *MockimageUsecase_Reorder_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockimageUsecase_Reorder_Call) RunAndReturn(run func(ctx context.Context, productID string, positions []usecase.ImagePosition) error) *MockimageUsecase_Reorder_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Upload provides a mock function for the type MockimageUsecase
 func (_mock *MockimageUsecase) Upload(ctx context.Context, input usecase.UploadImageIn) (models.Image, error) {
 	ret := _mock.Called(ctx, input)

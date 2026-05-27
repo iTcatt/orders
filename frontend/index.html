@@ -121,9 +121,12 @@
     .card-actions {
       padding: 12px 16px;
       border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .card-actions-row {
       display: flex; gap: 8px;
     }
-    .card-actions .btn { flex: 1; justify-content: center; }
+    .card-actions-row .btn { flex: 1; justify-content: center; }
 
     /* ── Empty / Loading ── */
     .state-center {
@@ -162,12 +165,19 @@
       box-shadow: var(--shadow);
       transform: translateY(16px);
       transition: transform .2s;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
     }
     .overlay.open .modal { transform: translateY(0); }
 
     .modal-header {
       padding: 20px 24px 0;
       display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0;
+      background: var(--surface);
+      z-index: 1;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
     }
     .modal-title { font-size: 1.1rem; font-weight: 700; }
     .modal-close {
@@ -178,7 +188,13 @@
     .modal-close:hover { color: var(--text); }
 
     .modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
-    .modal-footer { padding: 0 24px 20px; display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-footer {
+      padding: 0 24px 20px; display: flex; gap: 10px; justify-content: flex-end;
+      position: sticky; bottom: 0;
+      background: var(--surface);
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
 
     /* ── Form ── */
     .field { display: flex; flex-direction: column; gap: 6px; }
@@ -194,7 +210,7 @@
     .field .hint { font-size: .75rem; color: var(--muted); }
     .field-error { font-size: .75rem; color: var(--danger); }
 
-    /* ── Image upload zone ── */
+    /* ── Image upload zone (create) ── */
     .image-slots {
       display: flex; gap: 10px;
     }
@@ -235,6 +251,75 @@
     .image-slot.filled { border-style: solid; border-color: var(--accent); }
     .upload-hint { font-size: .72rem; color: var(--muted); }
 
+    /* ── Edit image items ── */
+    .edit-images {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .edit-image-row {
+      display: flex; gap: 10px; align-items: center;
+      padding: 8px 10px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg);
+      cursor: grab;
+      transition: border-color .15s, opacity .15s;
+      user-select: none;
+    }
+    .edit-image-row:active { cursor: grabbing; }
+    .edit-image-row.drag-over {
+      border-color: var(--accent);
+      background: rgba(108,99,255,.08);
+    }
+    .edit-image-row.dragging { opacity: .4; }
+    .drag-handle {
+      color: var(--muted); flex-shrink: 0; line-height: 1;
+      font-size: 1rem; cursor: grab;
+    }
+    .edit-image-thumb {
+      width: 56px; height: 56px; flex-shrink: 0;
+      border-radius: 6px; overflow: hidden;
+      background: var(--border);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .edit-image-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .edit-image-thumb .new-badge {
+      position: absolute; bottom: 2px; left: 2px;
+      background: var(--accent); color: #fff;
+      font-size: .6rem; font-weight: 700;
+      padding: 1px 5px; border-radius: 4px;
+    }
+    .edit-image-label {
+      font-size: .8rem; color: var(--muted); flex: 1;
+    }
+    .edit-img-btn {
+      padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);
+      background: transparent; color: var(--muted); cursor: pointer;
+      font-size: .75rem; transition: background .15s, color .15s;
+      display: flex; align-items: center; flex-shrink: 0;
+    }
+    .edit-img-btn:hover { background: var(--border); color: var(--text); }
+    .edit-img-btn.danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .edit-add-slot {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border: 2px dashed var(--border); border-radius: 8px;
+      cursor: pointer; position: relative;
+      transition: border-color .15s, background .15s;
+    }
+    .edit-add-slot:hover { border-color: var(--accent); background: rgba(108,99,255,.06); }
+    .edit-add-slot input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    }
+    .edit-add-slot-icon {
+      width: 36px; height: 36px; border-radius: 6px;
+      background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); flex-shrink: 0;
+    }
+    .edit-add-slot-text { font-size: .8rem; color: var(--muted); }
+
     /* ── Toast ── */
     .toasts {
       position: fixed; bottom: 24px; right: 24px; z-index: 500;
@@ -258,6 +343,22 @@
     @keyframes slideOut {
       to { transform: translateX(40px); opacity: 0; }
     }
+
+    /* ── Confirm modal ── */
+    .modal-confirm {
+      max-width: 400px;
+    }
+    .confirm-body {
+      padding: 24px 24px 8px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .confirm-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .confirm-text { font-size: .95rem; line-height: 1.5; }
+    .confirm-name { font-weight: 600; color: var(--text); }
 
     /* ── Detail modal ── */
     .modal-detail {
@@ -359,7 +460,7 @@
       </div>
       <div class="field">
         <label>Фотографии (до 3)</label>
-        <div class="image-slots" id="imageSlots">
+        <div class="edit-images" id="imageSlots">
           <!-- slots rendered by JS -->
         </div>
         <span class="upload-hint">JPEG, PNG или WebP, до 5 МБ каждый</span>
@@ -368,6 +469,63 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" id="formCancel">Отмена</button>
       <button class="btn btn-primary" id="formSubmit">Создать</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="overlay" id="editOverlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <span class="modal-title">Редактировать товар</span>
+      <button class="modal-close" id="editClose" aria-label="Закрыть">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="eTitle">Название</label>
+        <input id="eTitle" type="text" placeholder="Название товара" maxlength="255" />
+        <span class="field-error" id="eErrTitle"></span>
+      </div>
+      <div class="field">
+        <label for="eDesc">Описание</label>
+        <textarea id="eDesc" rows="3" placeholder="Описание товара"></textarea>
+        <span class="field-error" id="eErrDesc"></span>
+      </div>
+      <div class="field">
+        <label for="ePrice">Цена (в рублях)</label>
+        <input id="ePrice" type="number" min="0.01" step="0.01" placeholder="0.00" />
+        <span class="hint">Будет сохранено в копейках</span>
+        <span class="field-error" id="eErrPrice"></span>
+      </div>
+      <div class="field">
+        <label>Фотографии (до 3)</label>
+        <div class="edit-images" id="editImages">
+          <!-- rendered by JS -->
+        </div>
+        <span class="upload-hint">JPEG, PNG или WebP, до 5 МБ каждый</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="editCancel">Отмена</button>
+      <button class="btn btn-primary" id="editSubmit">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm delete modal -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal modal-confirm" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <span class="modal-title" id="confirmTitle"></span>
+      <button class="modal-close" id="confirmClose" aria-label="Закрыть">&#x2715;</button>
+    </div>
+    <div class="confirm-body">
+      <div class="confirm-icon" id="confirmIcon"></div>
+      <div class="confirm-text" id="confirmText"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="confirmCancel">Отмена</button>
+      <button class="btn" id="confirmOk"></button>
     </div>
   </div>
 </div>
@@ -405,15 +563,21 @@
 <script>
 const API = '/product';
 const PAGE_SIZE = 12;
+const MAX_IMAGES = 3;
 
 /* ── State ── */
 let page = 1;
 let loading = false;
 let exhausted = false;
 
-/* ── Image slots state ── */
-const MAX_IMAGES = 3;
-let imageFiles = [null, null, null]; // File | null per slot
+/* ── Create modal image state ── */
+let imageFiles = [];
+
+/* ── Edit modal state ── */
+let editProductId = null;
+let editOriginalProduct = null;
+// Each item: null | {type:'existing', id, url} | {type:'new', file, previewUrl}
+let editItems = [];
 
 /* ── API ── */
 async function apiFetch(path, opts = {}) {
@@ -431,9 +595,13 @@ async function apiFetch(path, opts = {}) {
   return text ? JSON.parse(text) : null;
 }
 
-const getProducts = (p, lim) => apiFetch(`?page=${p}&limit=${lim}`);
-const getProduct  = id  => apiFetch(`/${id}`);
-const createProduct = data => apiFetch('/', { method: 'POST', body: JSON.stringify(data) });
+const getProducts    = (p, lim) => apiFetch(`?page=${p}&limit=${lim}`);
+const getProduct     = id => apiFetch(`/${id}`);
+const createProduct  = data => apiFetch('/', { method: 'POST', body: JSON.stringify(data) });
+const updateProduct  = (id, data) => apiFetch(`/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+const deleteProduct  = id => apiFetch(`/${id}`, { method: 'DELETE' });
+const deleteImage    = (productId, imageId) => apiFetch(`/${productId}/image/${imageId}`, { method: 'DELETE' });
+const reorderImages  = (productId, positions) => apiFetch(`/${productId}/images/order`, { method: 'PUT', body: JSON.stringify(positions) });
 
 async function uploadImage(productId, file) {
   const fd = new FormData();
@@ -471,7 +639,7 @@ function toast(msg, type = 'success') {
 
 /* ── Card rendering ── */
 function cardHTML(p) {
-  const firstImg = p.image_urls && p.image_urls.length > 0 ? p.image_urls[0] : null;
+  const firstImg = p.images && p.images.length > 0 ? p.images[0].url : null;
   const imgBlock = firstImg
     ? `<img src="${escAttr(firstImg)}" alt="${escAttr(p.title)}" loading="lazy" onload="this.classList.add('loaded')" />`
     : `<div class="img-placeholder">
@@ -491,7 +659,13 @@ function cardHTML(p) {
         <div class="card-price">${formatPrice(p.price)}</div>
       </div>
       <div class="card-actions">
-        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); openDetail('${escAttr(p.id)}')">Подробнее</button>
+        <div class="card-actions-row">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); openDetail('${escAttr(p.id)}')">Подробнее</button>
+        </div>
+        <div class="card-actions-row">
+          <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); openEdit('${escAttr(p.id)}')">Изменить</button>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); openDeleteConfirm('${escAttr(p.id)}', '${escAttr(p.title)}')">Удалить</button>
+        </div>
       </div>
     </div>`;
 }
@@ -571,23 +745,85 @@ observer.observe(document.getElementById('sentinel'));
 function openOverlay(id)  { document.getElementById(id).classList.add('open'); }
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 
-/* ── Image slots ── */
+/* ── Create image slots ── */
 function renderSlots() {
   const container = document.getElementById('imageSlots');
   container.innerHTML = '';
+  let dragSrcIdx = -1;
 
-  for (let i = 0; i < MAX_IMAGES; i++) {
-    const file = imageFiles[i];
-    const slot = document.createElement('div');
-    slot.className = 'image-slot' + (file ? ' filled' : '');
-    slot.dataset.idx = i;
+  imageFiles.forEach((file, idx) => {
+    const row = document.createElement('div');
+    row.className = 'edit-image-row';
+    row.draggable = true;
 
-    const preview = document.createElement('img');
-    preview.alt = '';
-    if (file) {
-      preview.src = URL.createObjectURL(file);
-      preview.classList.add('has-img');
-    }
+    row.addEventListener('dragstart', e => {
+      dragSrcIdx = idx;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if (dragSrcIdx === idx || dragSrcIdx === -1) return;
+      const [moved] = imageFiles.splice(dragSrcIdx, 1);
+      imageFiles.splice(idx, 0, moved);
+      renderSlots();
+    });
+
+    const handle = document.createElement('div');
+    handle.className = 'drag-handle';
+    handle.innerHTML = '&#8942;&#8942;';
+
+    const thumb = document.createElement('div');
+    thumb.className = 'edit-image-thumb';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.alt = '';
+    thumb.appendChild(img);
+
+    const label = document.createElement('div');
+    label.className = 'edit-image-label';
+    label.textContent = `Фото ${idx + 1}`;
+
+    const btnDel = document.createElement('button');
+    btnDel.className = 'edit-img-btn danger';
+    btnDel.innerHTML = '&#x2715; Удалить';
+    btnDel.addEventListener('click', () => {
+      imageFiles.splice(idx, 1);
+      renderSlots();
+    });
+
+    row.appendChild(handle);
+    row.appendChild(thumb);
+    row.appendChild(label);
+    row.appendChild(btnDel);
+    container.appendChild(row);
+  });
+
+  if (imageFiles.length < MAX_IMAGES) {
+    const addSlot = document.createElement('div');
+    addSlot.className = 'edit-add-slot';
+
+    const icon = document.createElement('div');
+    icon.className = 'edit-add-slot-icon';
+    icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+    </svg>`;
+
+    const text = document.createElement('div');
+    text.className = 'edit-add-slot-text';
+    text.textContent = `Добавить фото (${imageFiles.length}/${MAX_IMAGES})`;
 
     const inp = document.createElement('input');
     inp.type = 'file';
@@ -595,39 +831,19 @@ function renderSlots() {
     inp.addEventListener('change', e => {
       const f = e.target.files[0];
       if (!f) return;
-      imageFiles[i] = f;
+      imageFiles.push(f);
       renderSlots();
     });
 
-    const placeholder = document.createElement('div');
-    placeholder.className = 'slot-placeholder';
-    placeholder.innerHTML = `
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="3" y="3" width="18" height="18" rx="2"/>
-        <circle cx="8.5" cy="8.5" r="1.5"/>
-        <path d="M21 15l-5-5L5 21"/>
-      </svg>
-      <span>Добавить</span>`;
-
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'slot-remove';
-    removeBtn.innerHTML = '&#x2715;';
-    removeBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      imageFiles[i] = null;
-      renderSlots();
-    });
-
-    slot.appendChild(preview);
-    slot.appendChild(inp);
-    slot.appendChild(placeholder);
-    slot.appendChild(removeBtn);
-    container.appendChild(slot);
+    addSlot.appendChild(icon);
+    addSlot.appendChild(text);
+    addSlot.appendChild(inp);
+    container.appendChild(addSlot);
   }
 }
 
 function clearImageSlots() {
-  imageFiles = [null, null, null];
+  imageFiles = [];
   renderSlots();
 }
 
@@ -670,7 +886,7 @@ document.getElementById('formSubmit').onclick = async () => {
     btn.textContent = 'Создание товара…';
     const { id } = await createProduct({ title, description, price });
 
-    const filesToUpload = imageFiles.filter(Boolean);
+    const filesToUpload = [...imageFiles];
     for (let i = 0; i < filesToUpload.length; i++) {
       btn.textContent = `Загрузка фото ${i + 1}/${filesToUpload.length}…`;
       try {
@@ -694,6 +910,293 @@ document.getElementById('formSubmit').onclick = async () => {
 ['formClose','formCancel'].forEach(id =>
   document.getElementById(id).onclick = () => closeOverlay('formOverlay'));
 
+/* ── Edit modal ── */
+async function openEdit(id) {
+  editProductId = id;
+  editOriginalProduct = null;
+  editItems = [];
+
+  // Clear errors
+  ['eErrTitle','eErrDesc','eErrPrice'].forEach(eid => document.getElementById(eid).textContent = '');
+
+  openOverlay('editOverlay');
+  document.getElementById('editSubmit').disabled = true;
+
+  try {
+    const p = await getProduct(id);
+    editOriginalProduct = p;
+
+    document.getElementById('eTitle').value = p.title;
+    document.getElementById('eDesc').value = p.description;
+    document.getElementById('ePrice').value = (p.price / 100).toFixed(2);
+
+    editItems = (p.images || []).map(img => ({ type: 'existing', id: img.id, url: img.url }));
+
+    renderEditImages();
+    document.getElementById('editSubmit').disabled = false;
+    document.getElementById('eTitle').focus();
+  } catch (e) {
+    toast(e.message, 'error');
+    closeOverlay('editOverlay');
+  }
+}
+
+function renderEditImages() {
+  const container = document.getElementById('editImages');
+  container.innerHTML = '';
+
+  const filled = editItems.filter(Boolean);
+  let dragSrcIdx = -1;
+
+  filled.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.className = 'edit-image-row';
+    row.draggable = true;
+
+    row.addEventListener('dragstart', e => {
+      dragSrcIdx = idx;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      container.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave', () => {
+      row.classList.remove('drag-over');
+    });
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if (dragSrcIdx === idx || dragSrcIdx === -1) return;
+      const [moved] = filled.splice(dragSrcIdx, 1);
+      filled.splice(idx, 0, moved);
+      editItems = filled;
+      renderEditImages();
+    });
+
+    // Drag handle
+    const handle = document.createElement('div');
+    handle.className = 'drag-handle';
+    handle.innerHTML = '&#8942;&#8942;';
+
+    // Thumbnail
+    const thumb = document.createElement('div');
+    thumb.className = 'edit-image-thumb';
+    const img = document.createElement('img');
+    img.src = item.type === 'existing' ? item.url : item.previewUrl;
+    img.alt = '';
+    thumb.appendChild(img);
+    if (item.type === 'new') {
+      const badge = document.createElement('span');
+      badge.className = 'new-badge';
+      badge.textContent = 'NEW';
+      thumb.appendChild(badge);
+    }
+
+    // Label
+    const label = document.createElement('div');
+    label.className = 'edit-image-label';
+    label.textContent = item.type === 'existing' ? `Фото ${idx + 1}` : `Новое фото ${idx + 1}`;
+
+    // Delete button
+    const btnDel = document.createElement('button');
+    btnDel.className = 'edit-img-btn danger';
+    btnDel.title = 'Удалить фото';
+    btnDel.innerHTML = '&#x2715; Удалить';
+    btnDel.addEventListener('click', () => {
+      filled.splice(idx, 1);
+      editItems = filled;
+      renderEditImages();
+    });
+
+    row.appendChild(handle);
+    row.appendChild(thumb);
+    row.appendChild(label);
+    row.appendChild(btnDel);
+    container.appendChild(row);
+  });
+
+  // Add slot if under limit
+  if (filled.length < MAX_IMAGES) {
+    const addSlot = document.createElement('div');
+    addSlot.className = 'edit-add-slot';
+
+    const icon = document.createElement('div');
+    icon.className = 'edit-add-slot-icon';
+    icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+    </svg>`;
+
+    const text = document.createElement('div');
+    text.className = 'edit-add-slot-text';
+    text.textContent = `Добавить фото (${filled.length}/${MAX_IMAGES})`;
+
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'image/jpeg,image/png,image/webp';
+    inp.addEventListener('change', e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      editItems.push({ type: 'new', file: f, previewUrl: URL.createObjectURL(f) });
+      renderEditImages();
+    });
+
+    addSlot.appendChild(icon);
+    addSlot.appendChild(text);
+    addSlot.appendChild(inp);
+    container.appendChild(addSlot);
+  }
+}
+
+function validateEditForm() {
+  let ok = true;
+  const title = document.getElementById('eTitle').value.trim();
+  const desc  = document.getElementById('eDesc').value.trim();
+  const price = parseFloat(document.getElementById('ePrice').value);
+
+  if (!title) { document.getElementById('eErrTitle').textContent = 'Обязательное поле'; ok = false; }
+  else document.getElementById('eErrTitle').textContent = '';
+  if (!desc)  { document.getElementById('eErrDesc').textContent = 'Обязательное поле'; ok = false; }
+  else document.getElementById('eErrDesc').textContent = '';
+  if (!price || price <= 0) { document.getElementById('eErrPrice').textContent = 'Укажите положительную цену'; ok = false; }
+  else document.getElementById('eErrPrice').textContent = '';
+
+  return ok;
+}
+
+document.getElementById('editSubmit').onclick = () => {
+  if (!validateEditForm()) return;
+
+  const id = editProductId;
+  const orig = editOriginalProduct;
+  const title = document.getElementById('eTitle').value.trim();
+  const description = document.getElementById('eDesc').value.trim();
+  const price = Math.round(parseFloat(document.getElementById('ePrice').value) * 100);
+  const itemsSnapshot = [...editItems];
+
+  openConfirm({
+    title: 'Сохранить изменения?',
+    icon: ICON_WARNING,
+    iconBg: 'rgba(108,99,255,.15)',
+    text: `Изменения в товаре <strong>${escHtml(title)}</strong> будут сохранены.`,
+    okLabel: 'Сохранить',
+    okClass: 'btn-primary',
+    action: async () => {
+      // 1. Update text fields if changed
+      const patch = {};
+      if (title !== orig.title) patch.title = title;
+      if (description !== orig.description) patch.description = description;
+      if (price !== orig.price) patch.price = price;
+      if (Object.keys(patch).length > 0) await updateProduct(id, patch);
+
+      // 2. Delete removed existing images
+      const origIds = new Set((orig.images || []).map(img => img.id));
+      const keptIds = new Set(itemsSnapshot.filter(i => i.type === 'existing').map(i => i.id));
+      const toDelete = [...origIds].filter(imgId => !keptIds.has(imgId));
+      for (const imgId of toDelete) {
+        try { await deleteImage(id, imgId); }
+        catch (err) { toast(`Не удалось удалить фото: ${err.message}`, 'error'); }
+      }
+
+      // 3. Upload new images
+      const newItems = itemsSnapshot.filter(i => i.type === 'new');
+      for (let i = 0; i < newItems.length; i++) {
+        try {
+          const res = await uploadImage(id, newItems[i].file);
+          newItems[i]._uploadedId = res.id;
+        } catch (err) {
+          toast(`Фото ${i + 1} не загрузилось: ${err.message}`, 'error');
+        }
+      }
+
+      // 4. Reorder if order or set changed
+      const finalIds = itemsSnapshot
+        .filter(item => item.type === 'existing' ? keptIds.has(item.id) : item._uploadedId)
+        .map(item => item.type === 'existing' ? item.id : item._uploadedId)
+        .filter(Boolean);
+      if (finalIds.length > 0) {
+        const origOrderIds = (orig.images || []).map(img => img.id);
+        if (JSON.stringify(finalIds) !== JSON.stringify(origOrderIds)) {
+          const positions = finalIds.map((imgId, i) => ({ id: imgId, position: i }));
+          try { await reorderImages(id, positions); }
+          catch (err) { toast(`Не удалось изменить порядок: ${err.message}`, 'error'); }
+        }
+      }
+
+      toast('Товар обновлён');
+      closeOverlay('editOverlay');
+      resetAndReload();
+    },
+  });
+};
+
+['editClose','editCancel'].forEach(id =>
+  document.getElementById(id).onclick = () => closeOverlay('editOverlay'));
+
+/* ── Confirm modal (generic) ── */
+let confirmPendingAction = null;
+
+const ICON_DANGER = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round">
+  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+</svg>`;
+
+const ICON_WARNING = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+</svg>`;
+
+function openConfirm({ title, icon, iconBg, text, okLabel, okClass, action }) {
+  document.getElementById('confirmTitle').textContent = title;
+  const iconEl = document.getElementById('confirmIcon');
+  iconEl.innerHTML = icon;
+  iconEl.style.background = iconBg;
+  document.getElementById('confirmText').innerHTML = text;
+  const okBtn = document.getElementById('confirmOk');
+  okBtn.textContent = okLabel;
+  okBtn.className = `btn ${okClass}`;
+  confirmPendingAction = action;
+  openOverlay('confirmOverlay');
+}
+
+function openDeleteConfirm(id, title) {
+  openConfirm({
+    title: 'Удалить товар?',
+    icon: ICON_DANGER,
+    iconBg: 'rgba(224,92,110,.15)',
+    text: `Товар <strong>${escHtml(title)}</strong> будет удалён безвозвратно.`,
+    okLabel: 'Удалить',
+    okClass: 'btn-danger',
+    action: async () => {
+      await deleteProduct(id);
+      toast('Товар удалён');
+      resetAndReload();
+    },
+  });
+}
+
+document.getElementById('confirmOk').onclick = async () => {
+  if (!confirmPendingAction) return;
+  const btn = document.getElementById('confirmOk');
+  btn.disabled = true;
+  try {
+    await confirmPendingAction();
+    closeOverlay('confirmOverlay');
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+['confirmClose', 'confirmCancel'].forEach(id =>
+  document.getElementById(id).onclick = () => closeOverlay('confirmOverlay'));
+
 /* ── Detail view ── */
 let carouselImages = [];
 let carouselIndex = 0;
@@ -712,7 +1215,7 @@ async function openDetail(id) {
     document.getElementById('detailPrice').textContent = formatPrice(p.price);
     document.getElementById('detailDesc').textContent = p.description;
     document.getElementById('detailMeta').textContent = `Обновлён ${formatDate(p.updated_at)}`;
-    resetCarousel(p.image_urls || []);
+    resetCarousel((p.images || []).map(img => img.url));
   } catch (e) {
     toast(e.message, 'error');
     closeOverlay('detailOverlay');
@@ -779,6 +1282,8 @@ document.getElementById('detailClose').onclick = () => closeOverlay('detailOverl
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeOverlay('formOverlay');
+    closeOverlay('editOverlay');
+    closeOverlay('confirmOverlay');
     closeOverlay('detailOverlay');
   }
   if (e.key === 'ArrowLeft' && document.getElementById('detailOverlay').classList.contains('open')) {
@@ -790,7 +1295,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* ── Overlay backdrop click ── */
-['formOverlay','detailOverlay'].forEach(id => {
+['formOverlay','editOverlay','confirmOverlay','detailOverlay'].forEach(id => {
   document.getElementById(id).addEventListener('click', e => {
     if (e.target === e.currentTarget) closeOverlay(id);
   });
@@ -804,10 +1309,17 @@ function resetAndReload() {
   loadMore();
 }
 
-/* Enter to submit form */
+/* Enter to submit create form */
 document.getElementById('formOverlay').addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
     document.getElementById('formSubmit').click();
+  }
+});
+
+/* Enter to submit edit form */
+document.getElementById('editOverlay').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+    document.getElementById('editSubmit').click();
   }
 });
 
